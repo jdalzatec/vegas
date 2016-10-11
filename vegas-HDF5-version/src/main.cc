@@ -55,35 +55,10 @@ void HELP()
 {
     std::cout << "Usage:" << std::endl;
     std::cout << std::endl;
-    std::cout << "\t./main [-f] [-FLAGS]" << std::endl;
+    std::cout << "\t./vegas FILE.JSON" << std::endl;
     std::cout << std::endl;
-    std::cout << "Description for [-FLAGS]:" << std::endl;
-    std::cout << std::endl;
-    std::cout << "There are two modes in the programm [cooling - hysteresis]. They are mutually exclusive." << std::endl;
-    std::cout << "The cooling mode needs values for -Thigh and -Tlow and runs with external magnetic field -H" << std::endl;
-    std::cout << "The hysteresis mode needs value for -Hmax and runs to temperature -T" << std::endl;
-    std::cout << "There are two kind of anisotropy [uniaxial - cubic]. They are mutually exclusive." << std::endl;
-    std::cout << "The outcomes, by default, are saving in a netCDF file. If you want save them in plane text, pass the flag -text." << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "\t-f or -sample   <string>   -> file that contains the sample." << std::endl;
-    std::cout << "\t-cooling                   -> flag for choose the cooling mode." << std::endl;
-    std::cout << "\t-hysteresis                -> flag for choose the hysteresis mode." << std::endl;
-    std::cout << "\t-T or -temp     <double>   -> value of temperature." << std::endl;
-    std::cout << "\t-H or -field    <double>   -> value of external magnetic field." << std::endl;
-    std::cout << "\t-Hmax           <double>   -> value of maximum value in the hysteresis loop." << std::endl;
-    std::cout << "\t-Thigh          <double>   -> value of maximum value for the temperature in the cooling mode." << std::endl;
-    std::cout << "\t-Tlow           <double>   -> value of minimum value for the temperature in the cooling mode." << std::endl;
-    std::cout << "\t-mcs            <int>      -> amount of Monte Carlo Steps." << std::endl;
-    std::cout << "\t-p or -points   <int>      -> number of points for the outcomes." << std::endl;
-    std::cout << "\t-finalstates               -> flag to save the final states." << std::endl;
-    std::cout << "\t-out            <string>   -> name of outcomes file." << std::endl;
-    std::cout << "\t-uniaxial                  -> flag for choose uniaxial anisotropy." << std::endl;
-    std::cout << "\t-cubic                     -> flag for choose cubic anisotropy." << std::endl;
-    std::cout << "\t-text                      -> flag for show the outcomes in plane text files." << std::endl;
-    std::cout << "\t-seed           <int>      -> set the seed for the random numbers engine." << std::endl;
-    std::cout << "\t-model          <string>   -> set the model for the spins [-heisenberg -ising]." << std::endl;
-    std::cout << std::endl;
+    std::cout << "For more information, please feel free to consult https://github.com/jdalzatec/vegas" << std::endl;
+    
     exit(EXIT_FAILURE);
 }
 
@@ -182,7 +157,6 @@ int main(int argc, char const *argv[])
     Index mcs = root.get("mcs", 5000).asInt();
     std::string model = root.get("model", "ising").asString();
     std::string anisotropy = root.get("anisotropy", "uniaxial").asString();
-    std::string mode = root.get("mode", "cooling").asString();
     std::string out = root.get("out", "default.h5").asString();
     Index seed = root.get("seed", Index(time(NULL))).asUInt();
     

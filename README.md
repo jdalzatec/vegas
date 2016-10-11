@@ -1,4 +1,6 @@
 # vegas
+[![DOI](https://zenodo.org/badge/70527258.svg)](https://zenodo.org/badge/latestdoi/70527258)
+
 Software package for simulation, graphics and analysis tools for atomistic simulations of magnetic materials.
 
 <b>vegas</b> is a software with novel features for different purposes. For example, the simulation data is saved into a HDF5 file in order to have all the history of the simularion. This history is important, for example, to compute critical exponents. For this reason, the averages are computed by means of a script (which can be made in python) as the user wants.

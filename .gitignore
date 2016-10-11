@@ -16,3 +16,7 @@ a.out
 *.png
 *.jpg
 *.svg
+
+*.nc
+*.h5
+*.mean

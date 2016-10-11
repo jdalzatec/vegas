@@ -1,8 +1,17 @@
 # vegas
 Software package for simulation, graphics and analysis tools for atomistic simulations of magnetic materials.
 
-<b>vegas</b> is a software with novel features for different purposes. For example, the simulation data is saved into a HDF5 file in order to have all the history of the simularion. This history is important to compute critical exponents. For this reason, the averages are computed by means of a script (which can be made in python) as the user wants.
-You can do many thing with <b>vegas</b>, like cooling processes, hysteresis loops or heat assisted recording media.
+<b>vegas</b> is a software with novel features for different purposes. For example, the simulation data is saved into a HDF5 file in order to have all the history of the simularion. This history is important, for example, to compute critical exponents. For this reason, the averages are computed by means of a script (which can be made in python) as the user wants.
+You can do many things with <b>vegas</b>, like cooling processes, hysteresis loops or heat assisted recording media.
+
+In the moment, **vegas** has implemented the Monte Carlo method with Metropolis dynamics. For uniaxial anisotropy, the Hamiltonian used is
+
+![alt text](https://raw.githubusercontent.com/jdalzatec/vegas/master/hamiltonian%201.png "Hamiltonian with uniaxial anisotropy")
+
+If the anisotropy is cubic, the Hamiltonian is
+
+![alt text](https://raw.githubusercontent.com/jdalzatec/vegas/master/hamiltonian%202.png "Hamiltonian with cubic anisotropy")
+
 
 # Requirements
 As it was mentioned, HDF5 for C is needed for <b>vegas</b>. This can be downloaded and installed from https://support.hdfgroup.org/HDF5/release/cmakebuild5110.html.
@@ -16,10 +25,12 @@ sudo make install
 ``` 
 A executable file will be created in /usr/bin/ with name <b>vegas</b>. In this way, you can run vegas from anywhere. You can remove the folder zip with the source files if you want.
 
+However, if you only want compile **vegas**, run *sudo make prerequisite* for install the prerrequisites, next run *make* and an executable file named **vegas** will be created in the folder. You will can copy and paste it anywhere you want.
+
 # Run
 In order to run <b>vegas</b> it is necessary to have two files: a <b>sample</b> file and a <b>configuration Json</b> file.
 
-## Sample
+## Sample file
 The sample should have the following format:
 * The first line it composed by three values separated by spaces or tabs, which are:
 
@@ -56,3 +67,34 @@ The sample should have the following format:
 Finally, you can check the amount of lines, because the last line occupied should be the line with number equals to (**num_ions** + **num_interactions** + **num_types** + 1).
 
 You can see an example of sample file [here](https://github.com/jdalzatec/vegas/blob/master/examples/some%20kind%20of%20simulations/training%20effect/samples/bulk_L_8.dat). Moreover, some python script was writing in order to help you in the construction of the sample. They can be consulted [here](https://github.com/jdalzatec/vegas/tree/master/examples/build%20samples)
+
+## Configuration Json file
+A Json file should be created in order to execute vegas. The only necessary entry for the Json file is **sample** which indicates where is the location of the sample file. However, other possible entries can be modified for the simulations:
+* **anisotropy** is the type of anisotropy, which can be *uniaxial* or *cubic*. By default is *uniaxial*
+* **mcs** is the amount of Monte Carlo steps. By default is *5000*. *(int)*
+* **model** is the spins model, which can be *ising* or *heisenberg*. By default is *ising*. *(string)*
+* **out** is the HDF5 file out name. By default is *default.h5*. *(string)*
+* **seed** is seed for random numbers. By default is the computer's actual time. *(int)*
+* **temperature** is the temperature(s) of the system. This can be a float value or a values list. Even, it can be a more sophisticated structure with entries *start*, *final*, *points* and *cycle*, which correspond to the initial temperature, the final temperature, the amount of temperature points and a boolean flag that says if the temperature returns to the *start* value, respectively.
+* **field** is the field(s) of the system. This can be a float value or a values list. Even, it can be a more sophisticated structure with entries *start*, *final*, *points* and *cycle*, which correspond to the initial field, the final field, the amount of field points and a boolean flag that says if the field returns to the *start* value, respectively.
+
+In the cases that the temperature and field are values list or json-structures, they should have the same size.
+
+A possible example for the json file is 
+
+```json
+{"mcs": 50000,
+ "model": "ising",
+ "temperature": {"start": 30.0, "points": 200, "final": 0.01},
+ "out": "simulations/sample_rc_5_rs_2_h_20_jcc_0.0_jss_0.0_kv_10.0_0.h5",
+ "field": 0.0,
+ "seed": 11645140,
+ "anisotropy": "uniaxial",
+ "sample": "samples/sample_rc_5_rs_2_h_20_jcc_0.0_jss_0.0_kv_10.0.dat"}
+```
+
+Finally, <b>vegas</b> is executed with
+
+```bash
+vegas file.json
+``` 

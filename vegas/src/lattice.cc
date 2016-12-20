@@ -36,25 +36,22 @@ Lattice::Lattice(std::string fileName)
     Real hy;
     Real hz;
     std::string type;
-    std::string location;
     std::string model;
 
     for (Index index = 0; index < num_ions; ++index)
     {
-        file >> index >> px >> py >> pz >> spinNorm >> ax >> ay >> az >> Kan >> typeAnisotropy >> hx >> hy >> hz >> type >> location >> model;
+        file >> index >> px >> py >> pz >> spinNorm >> ax >> ay >> az >> Kan >> typeAnisotropy >> hx >> hy >> hz >> type >> model;
 
         Array position({px, py, pz});
         Array anisotropyUnit({ax, ay, az});
 
         Array spin({0.0, 0.0, spinNorm}); // ALWAYS THE INITIAL SPIN WILL BE IN THE Z-DIRECTION
 
-        std::transform(location.begin(), location.end(), location.begin(), tolower);
         std::transform(typeAnisotropy.begin(), typeAnisotropy.end(), typeAnisotropy.begin(), tolower);
         std::transform(model.begin(), model.end(), model.begin(), tolower);
 
         Atom atom(index, spin, position, anisotropyUnit);
         atom.setType(type);
-        atom.setLocation(location);
         atom.setTypeAnisotropy(typeAnisotropy);
         atom.setKan(Kan);
         atom.setExternalField({hx, hy, hz});
@@ -75,29 +72,6 @@ Lattice::Lattice(std::string fileName)
         this -> atoms_.at(index).addExchange(exchange);
     }
 
-
-    for (auto&& atom : this -> atoms_)
-    {
-        if (atom.getLocation() == "surface")
-        {
-            this -> surfaceAtoms_.push_back(&atom);
-            atom.isSurface(true);
-        }
-        else if (atom.getLocation() == "core")
-        {
-            this -> coreAtoms_.push_back(&atom);
-            atom.isSurface(false);
-        }
-        else
-        {
-            rlutil::setColor(rlutil::LIGHTRED);
-            std::cout << "The location must be [core - shell] !!!" << std::endl;
-            std::cout << "Unsuccesful completion !!!" << std::endl;
-            rlutil::resetColor();
-            exit(EXIT_FAILURE);
-        }
-        
-    }
 }
 
 Lattice::~Lattice()
@@ -113,14 +87,4 @@ std::vector<Atom>& Lattice::getAtoms()
 const std::map<std::string, Index>& Lattice::getMapTypes() const
 {
     return this -> mapTypes_;
-}
-
-const std::vector<Atom*>& Lattice::getSurfaceAtoms() const
-{
-    return this -> surfaceAtoms_;
-}
-
-const std::vector<Atom*>& Lattice::getCoreAtoms() const
-{
-    return this -> coreAtoms_;
 }

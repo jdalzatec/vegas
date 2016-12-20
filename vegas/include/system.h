@@ -12,7 +12,6 @@ class System
 {
 public:
     System(std::string fileName,
-           std::string model,
            std::vector<Real> temps,
            std::vector<Real> fields,
            Index mcs,
@@ -43,11 +42,12 @@ public:
 
     const std::map<std::string, Array>& getMagnetizationType() const;
 
+    void setState(std::string fileState);
+
 private:
     Lattice lattice_;
-    std::string model_;
     Index mcs_;
-    Real Kb;
+    Real Kb_;
     Index seed_;
     std::vector<Real> temps_;
     std::vector<Real> fields_;

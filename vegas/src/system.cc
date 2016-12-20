@@ -13,7 +13,6 @@ const std::string ETA_seconds(const Index& seconds)
 }
 
 System::System(std::string fileName,
-               std::string model,
                std::vector<Real> temps,
                std::vector<Real> fields,
                Index mcs,
@@ -22,8 +21,7 @@ System::System(std::string fileName,
                Real Kb) : lattice_(fileName)
 {
     this -> mcs_ = mcs;
-    this -> Kb = Kb;
-    this -> model_ = model;
+    this -> Kb_ = Kb;
     this -> temps_ = temps;
     this -> fields_ = fields;
     this -> intRandomGenerator_ = std::uniform_int_distribution<>(0, this -> lattice_.getAtoms().size() - 1);
@@ -39,8 +37,6 @@ System::System(std::string fileName,
         this -> magnetizationType_[element.first] = ZERO;
     }
 
-    this -> magnetizationType_["surface"] = ZERO;
-    this -> magnetizationType_["core"] = ZERO;
     this -> magnetizationType_["magnetization"] = ZERO;
     std::remove(outName.c_str());
 
@@ -72,12 +68,6 @@ Array System::magnetization()
         mag += atom.getSpin();
     }
 
-    for (auto&& atom : this -> lattice_.getSurfaceAtoms())
-    {
-        this -> magnetizationType_.at("surface") += atom -> getSpin();
-    }
-
-    this -> magnetizationType_.at("core") = mag - this -> magnetizationType_.at("surface");
     this -> magnetizationType_.at("magnetization") = mag;
 
     return mag;
@@ -118,7 +108,7 @@ void System::randomizeSpins(Real T)
             this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            (this -> Kb) * T, atom);
+            (this -> Kb_) * T, atom);
 }
 
 
@@ -133,11 +123,11 @@ void System::monteCarloStep(Real T, Real H)
         atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            (this -> Kb) * T, atom);
+            (this -> Kb_) * T, atom);
         Real newEnergy = this -> localEnergy(atom, H);
         Real deltaEnergy = newEnergy - oldEnergy;
 
-        if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (Kb * T)))
+        if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (this -> Kb_ * T)))
             atom.revertSpin();
     }
 }
@@ -221,4 +211,25 @@ Index System::getSeed() const
 const std::map<std::string, Array>& System::getMagnetizationType() const
 {
     return this -> magnetizationType_;
+}
+
+void System::setState(std::string fileState)
+{
+    std::ifstream file(fileState);
+
+    Array spin;
+    std::string sx;
+    std::string sy;
+    std::string sz;
+    for (auto&& atom : this -> lattice_.getAtoms())
+    {
+        file >> sx >> sy >> sz;
+        Array spin({atof(sx.c_str()), atof(sy.c_str()), atof(sz.c_str())});
+        if (std::sqrt((spin*spin).sum()) != atom.getSpinNorm())
+        {
+            std::cout << "The spin norm of the site " << atom.getIndex() << " does not match with the initial state given !!!" << std::endl;
+            exit(EXIT_FAILURE);
+        }
+        atom.setSpin(spin);
+    }
 }

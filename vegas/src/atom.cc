@@ -50,7 +50,6 @@ Atom::Atom(Index index, Array spin, std::vector<Atom*> nbhs,
     this -> Kan_ = 0.0;
     this -> spinNorm_ = sqrt((this -> spin_ * this -> spin_).sum());
     this -> type_ = "nothing";
-    this -> is_surface_ = false;
 
     this -> projections_ = std::vector<double>(0);
     this -> possibleProjections_ = std::vector<double>(0);
@@ -61,7 +60,7 @@ Atom::Atom(Index index, Array spin, std::vector<Atom*> nbhs,
     }
 
     this -> Sproj_ = 0;
-    this -> setSpin({0.0, 0.0, this -> getPossibleProjections()[0]});
+    this -> setSpin({0.0, 0.0, this -> getPossibleProjections()[0]}); // ALWAYS THE INITIAL SPIN WILL BE IN THE Z-DIRECTION
     this -> removePossibleProjection(0);
 
 
@@ -111,11 +110,6 @@ const std::vector<Real>& Atom::getExchanges() const
 const std::string& Atom::getType() const
 {
     return this -> type_;
-}
-
-const std::string& Atom::getLocation() const
-{
-    return this -> location_;
 }
 
 const Real& Atom::getKan() const
@@ -169,11 +163,6 @@ void Atom::setType(const std::string& type)
     this -> type_ = type;
 }
 
-void Atom::setLocation(const std::string& location)
-{
-    this -> location_ = location;
-}
-
 void Atom::setKan(const Real& Kan)
 {
     this -> Kan_ = Kan;
@@ -187,16 +176,6 @@ void Atom::addNbh(Atom* nbh)
 void Atom::addExchange(Real exchange)
 {
     this -> exchanges_.push_back(exchange);
-}
-
-bool Atom::isSurface() const
-{
-    return this -> is_surface_;
-}
-
-void Atom::isSurface(bool is_surface)
-{
-    this -> is_surface_ = is_surface;
 }
 
 void Atom::setExternalField(const Array& externalField)
@@ -241,7 +220,7 @@ void Atom::setTypeAnisotropy(const std::string& typeAnisotropy)
     else
     {
         rlutil::setColor(rlutil::LIGHTRED);
-        std::cout << "The anisotropy must be [uniaxial - cubical] !!!" << std::endl;
+        std::cout << "The anisotropy must be [uniaxial - cubic] !!!" << std::endl;
         std::cout << "Unsuccesful completion !!!" << std::endl;
         rlutil::resetColor();
         exit(EXIT_FAILURE);

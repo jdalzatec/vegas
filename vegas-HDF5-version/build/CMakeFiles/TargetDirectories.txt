@@ -1,7 +1,0 @@
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/install.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/list_install_components.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/rebuild_cache.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/vegas.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/install/strip.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/install/local.dir
-/home/giru/Dropbox/vegas/vegas-HDF5-version/build/CMakeFiles/edit_cache.dir

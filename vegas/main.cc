@@ -28,8 +28,6 @@ void EXIT(std::string message)
 
 void CHECK(std::string sample,
            Index mcs,
-           std::string model,
-           std::string anisotropy,
            const std::vector<Real>& temps,
            const std::vector<Real>& fields)
 {
@@ -40,15 +38,17 @@ void CHECK(std::string sample,
     if (mcs < 10)
         EXIT("The number of MCS must be greater than 10 !!!");
 
-    if (model != "heisenberg" and model != "ising")
-        EXIT("The model must be 'ising' or 'heisenberg' !!!");
-
-    if (anisotropy != "uniaxial" and anisotropy != "cubic")
-        EXIT("The anisotropy must be 'uniaxial' or 'cubic' !!!");
-
     if (temps.size() != fields.size())
         EXIT("The amount of temperatures and fields are differents ( " + std::to_string(
             temps.size()) + " != " + std::to_string(fields.size()) + " )!!!");
+}
+
+void CHECKFILE(std::string filename)
+{
+    std::ifstream infile(filename);
+    if (!infile.good())
+        EXIT("The initial state file can't open or doesn't exist !!!");
+
 }
 
 void HELP()
@@ -88,21 +88,6 @@ void HEADER()
     std::cout << "                          **";
     rlutil::setColor(rlutil::LIGHTCYAN);
     std::cout << " |" << std::endl;
-    std::cout << "| ";
-    rlutil::setColor(rlutil::LIGHTGREEN);
-    std::cout << "**                                                  **";
-    rlutil::setColor(rlutil::LIGHTCYAN);
-    std::cout << " |" << std::endl;
-    std::cout << "| ";
-    rlutil::setColor(rlutil::LIGHTGREEN);
-    std::cout << "**      Authors: Juan David Alzate Cardona          **";
-    rlutil::setColor(rlutil::LIGHTCYAN);
-    std::cout <<" |" << std::endl;
-    std::cout << "| ";
-    rlutil::setColor(rlutil::LIGHTGREEN);
-    std::cout << "**                                                  **";
-    rlutil::setColor(rlutil::LIGHTCYAN);
-    std::cout <<" |" << std::endl;
     std::cout << "| ";
     rlutil::setColor(rlutil::LIGHTGREEN);
     std::cout << "**                                                  **";
@@ -156,11 +141,9 @@ int main(int argc, char const *argv[])
     std::string sample = root["sample"].asString();
     Index mcs = root.get("mcs", 5000).asInt();
     Real Kb = root.get("Kb", 1.0).asDouble();
-    std::string model = root.get("model", "ising").asString();
-    std::string anisotropy = root.get("anisotropy", "uniaxial").asString();
     std::string out = root.get("out", "default.h5").asString();
     Index seed = root.get("seed", Index(time(NULL))).asUInt();
-    
+
     Real T;
     bool unique_T = true;
     std::vector<Real> temps(0);
@@ -319,20 +302,31 @@ int main(int argc, char const *argv[])
     }
 
     
-    CHECK(sample, mcs, model, anisotropy, temps, fields);
+    CHECK(sample, mcs, temps, fields);
 
-    System system_(sample, model, temps, fields, mcs, seed, out, Kb);
-    system_.randomizeSpins(temps[0]);
+    System system_(sample, temps, fields, mcs, seed, out, Kb);
+
+    if (root.isMember("initialstate") == false)
+    {
+        system_.randomizeSpins(temps[0]);
+    }
+    else
+    {
+        CHECKFILE(root.get("initialstate", "").asString());
+        system_.setState(root.get("initialstate", "").asString());
+    }
+
+    
 
     std::cout << "\t\tSample file           = " << sample << std::endl;
     std::cout << "\t\tNum MCS               = " << mcs << std::endl;
-    std::cout << "\t\tAnisotropy            = " << anisotropy << std::endl;
-    std::cout << "\t\tModel                 = " << model << std::endl;
     std::cout << "\t\tOut file              = " << out << std::endl;
+    if (root.isMember("initialstate"))
+    {
+        std::cout << "\t\tInitial state file    = " << root.get("initialstate", "").asString() << std::endl;
+    }
     std::cout << std::endl;
     std::cout << "\t\tNum Ions              = " << system_.getLattice().getAtoms().size() << std::endl;
-    std::cout << "\t\tNum Surface Ions      = " << system_.getLattice().getSurfaceAtoms().size() << std::endl;
-    std::cout << "\t\tNum Core Ions         = " << system_.getLattice().getCoreAtoms().size() << std::endl;
     for (auto&& type : system_.getLattice().getMapTypes())
     {
         std::cout << "\t\tNum " << type.first << " Ions";

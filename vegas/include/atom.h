@@ -29,7 +29,6 @@ public:
     const Array& getAnisotropyUnit() const;
     const std::vector<Real>& getExchanges() const;
     const std::string& getType() const;
-    const std::string& getLocation() const;
     const std::string& getTypeAnisotropy() const;
     const Real& getKan() const;
     const Array& getExternalField() const;
@@ -47,7 +46,6 @@ public:
     void setExchanges(const std::vector<Real>& exchanges);
     void setType(const std::string& type);
     void setTypeAnisotropy(const std::string& typeAnisotropy);
-    void setLocation(const std::string& location);
     void setSpin(const Array& spin);
     void setOldSpin(const Array& oldSpin);
     void setAnisotropyUnit(const Array& anistropyUnit);
@@ -58,8 +56,6 @@ public:
     void addNbh(Atom* nbh);
     void addExchange(Real exchange);
     
-    bool isSurface() const;
-    void isSurface(bool is_surface);
     void changeProjection(Index i, Real value);
     void removePossibleProjection(Index i);
 
@@ -87,11 +83,9 @@ private:
     Real Kan_;
     std::string type_;
     std::string typeAnisotropy_;
-    std::string location_;
     std::vector<Real> exchanges_;
     std::vector<double> projections_;
     std::vector<double> possibleProjections_;
-    bool is_surface_;
     
     std::string model_;
 

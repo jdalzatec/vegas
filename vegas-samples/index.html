@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vegas sample</title>
+    <script type="text/javascript" src="Cango3D-7v10.js"></script>
+    <script type="text/javascript">
+        function drawAxis(cvsID)
+        {
+          g = new Cango3D(cvsID);  // create a graphics context
+
+          g.setPropertyDefault("backgroundColor", "aliceblue");
+          g.setWorldCoords3D(-2.2, -1.5, 4.0);
+          g.setLightSource(0, 10, 20);
+
+          elements = [];
+          atoms = [];
+          types = [];
+        }
+        window.onload = function()
+            {
+                drawAxis("cvs1");
+                drawLattice();
+            };
+        function drawLattice()
+        {
+            e = document.getElementById("lattice");
+            lattice = e.options[e.selectedIndex].value;  
+            if (lattice == "Cubic")
+            {
+                g.clearCanvas();
+                elements = [];
+                X = g.compilePath3D(["M",0,0,0, "L", 1.5, 0, 0], "yellow", 3);
+                Y = g.compilePath3D(["M",0,0,0, "L", 0, 1.5, 0], "blue", 3);
+                Z = g.compilePath3D(["M",0,0,0, "L", 0, 0, 2.0], "red", 3);
+                X_name = g.compileText3D("X", "black", 20, 2)
+                X_name.transform.translate(1.5, 0, 0);
+                X_name.transform.rotate(1, 0, 0, 90);
+                Y_name = g.compileText3D("Y", "black", 20, 2)
+                Y_name.transform.translate(0, 1.5, 0);
+                Y_name.transform.rotate(1, 0, 0, 90);
+                Y_name.transform.rotate(0, 1, 0, 90);
+                Z_name = g.compileText3D("Z", "black", 20, 2)
+                Z_name.transform.translate(0, 0, 2.0);
+                Z_name.transform.rotate(0, 0, 1, 90);
+                Z_name.transform.rotate(1, 0, 0, 90);
+                elements.push(X);
+                elements.push(Y);
+                elements.push(Z);
+                elements.push(X_name);
+                elements.push(Y_name);
+                elements.push(Z_name);
+
+                l1 = g.compilePath3D(shapes3D.square(1.0), "black", 2.0);
+                l1.transform.translate(0.5, 0.5, 0);
+                elements.push(l1);
+                l1 = g.compilePath3D(shapes3D.square(1.0), "black", 2.0);
+                l1.transform.translate(0.5, 0.5, 1);
+                elements.push(l1);
+                l1 = g.compilePath3D(shapes3D.square(1.0), "black", 2.0);
+                l1.transform.rotate(1, 0, 0, 90);
+                l1.transform.translate(0.5, 0.0, 0.5);
+                elements.push(l1);
+                l1 = g.compilePath3D(shapes3D.square(1.0), "black", 2.0);
+                l1.transform.rotate(1, 0, 0, 90);
+                l1.transform.translate(0.5, 1.0, 0.5);
+                elements.push(l1);
+            }
+            else if (lattice == "HCP")
+            {
+                g.clearCanvas();
+                elements = [];
+                ux = Math.cos(30 * Math.PI / 180);
+                uy = Math.sin(30 * Math.PI / 180);
+                X = g.compilePath3D(["M",0,0,0, "L", 1.5*ux, -1.5*uy, 0], "yellow", 3);
+                Y = g.compilePath3D(["M",0,0,0, "L", 0, 1.5, 0], "blue", 3);
+                Z = g.compilePath3D(["M",0,0,0, "L", 0, 0, 2.0], "red", 3);
+                X_name = g.compileText3D("X", "black", 20, 2)
+                X_name.transform.translate(1.5*ux, -1.5*uy, 0);
+                X_name.transform.rotate(1, 0, 0, 90);
+                X_name.transform.rotate(0, 1, 0, -30);
+                Y_name = g.compileText3D("Y", "black", 20, 2)
+                Y_name.transform.translate(0, 1.5, 0);
+                Y_name.transform.rotate(1, 0, 0, 90);
+                Y_name.transform.rotate(0, 1, 0, 90);
+                Z_name = g.compileText3D("Z", "black", 20, 2)
+                Z_name.transform.translate(0, 0, 2.0);
+                Z_name.transform.rotate(0, 0, 1, 90);
+                Z_name.transform.rotate(1, 0, 0, 90);
+                elements.push(X);
+                elements.push(Y);
+                elements.push(Z);
+                elements.push(X_name);
+                elements.push(Y_name);
+                elements.push(Z_name);
+
+                l1 = g.compilePath3D(["M", 0, 0, 0, "L", ux, -uy, 0, "l", ux, uy, 0, 0, 1, 0, -ux, uy, 0, -ux, -uy, 0, 0, -1, 0], "black", 2.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", 0, 0, 0, "L", ux, -uy, 0, "l", ux, uy, 0, 0, 1, 0, -ux, uy, 0, -ux, -uy, 0, 0, -1, 0], "black", 2.0);
+                l1.transform.translate(0, 0, 1.5);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", 0, 0, 0, "l", 0, 0, 1.5], "black", 5.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", ux, -uy, 0, "l", 0, 0, 1.5], "black", 2.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", 0, 1, 0, "l", 0, 0, 1.5], "black", 2.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", ux, 1+uy, 0, "l", 0, 0, 1.5], "black", 2.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", 2*ux, 1, 0, "l", 0, 0, 1.5], "black", 2.0);
+                elements.push(l1);
+                l1 = g.compilePath3D(["M", 2*ux, 0, 0, "l", 0, 0, 1.5], "black", 2.0);
+                elements.push(l1);
+            }
+
+            plot = g.createGroup3D(elements);
+            plot.transform.rotate(0, 1, 1, -90);
+            plot.transform.rotate(1, 1, 1, -60);
+            plot.transform.rotate(0, 0, 1, 10);
+            g.renderFrame(plot);
+        };
+
+        function draw_sphere(position)
+        {
+            drawLattice();
+            atoms.push(position);
+            for (var i = atoms.length - 1; i >= 0; i--) {
+                for (var j = 0; j <= 180; j+=20) {
+                    ion = g.compileShape3D(shapes3D.circle(0.25), "green", "green");
+                    ion.transform.rotate(1, 1, 1, j);
+                    ion.transform.translate(atoms[i][0], atoms[i][1], atoms[i][2]);
+                    // ion.transform.translate(position[0], position[1], position[2]);
+                    elements.push(ion);
+                }
+            }
+            plot = g.createGroup3D(elements);
+            plot.transform.rotate(0, 1, 1, -90);
+            plot.transform.rotate(1, 1, 1, -60);
+            plot.transform.rotate(0, 0, 1, 10);
+            g.renderFrame(plot);
+        }
+
+        function add()
+        {
+            pos = document.getElementById("position").value.split(" ");
+            draw_sphere(pos);
+        }
+    </script>
+</head>
+<body>
+    <form>
+        Lattice:
+        <select id="lattice" onchange="drawLattice()">
+            <option value="Cubic">Cubic</option>
+            <option value="HCP">HCP</option>
+        </select>
+    </form>
+    <canvas id="cvs1" width="400" height="400" style="background-color: rgb(240, 248, 255);"></canvas>
+    <form>
+        Atom type: 
+        <input id="type"><br>
+        Atom position: 
+        <input id="position" value="0 0 0"><br>
+        <input type="button" value="Add" onClick="add()">
+
+    </form>
+</body>
+</html>

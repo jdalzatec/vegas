@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.2)
+cmake_minimum_required(VERSION 3.5.1)
 project(vegas CXX)
 
 # agrego el modulo para poder encontrar jsoncpp

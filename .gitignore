@@ -20,3 +20,7 @@ a.out
 *.nc
 *.h5
 *.mean
+
+*.zip
+*.gz
+*.rar

@@ -1,40 +1,38 @@
-cmake_minimum_required(VERSION 3.5.1)
-project(vegas CXX)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.0)
+PROJECT(vegas CXX)
 
 # agrego el modulo para poder encontrar jsoncpp
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-
+SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 
 # agrego los directorios con los .h y agrego a SOURCES todos los archivos cc
-include_directories(include)
-file(GLOB SOURCES "src/*.cc")
+INCLUDE_DIRECTORIES(include)
+FILE(GLOB SOURCES "src/*.cc")
+
+# Usamos el estandar c++11 (se pueden poner con PROPERTIES de un solo target)
+ADD_COMPILE_OPTIONS(-std=c++11)
+
+# Si compila en modo Release o Debug
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -Wall -g -DDEBUG")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O2 -Wall -ffast-math")
+
+# reviso si existe jsoncpp y HDF5
+FIND_PACKAGE(jsoncpp REQUIRED)
+FIND_PACKAGE(HDF5 REQUIRED)
+
+#Agrego los nuevos includes y librerias
+INCLUDE_DIRECTORIES(
+  ${JSONCPP_INCLUDE_DIRS}
+  ${HDF5_INCLUDE_DIRS}
+  )
+
+SET(LIBRARIES
+  ${JSONCPP_LIBRARIES}
+  ${HDF5_LIBRARIES}
+  )
 
 # creo el ejecutable
-add_executable(vegas main.cc ${SOURCES})
-
-
-# agrego banderas de compilacion
-set(CMAKE_CXX_FLAGS "-O2 -Wall -ffast-math")
-target_link_libraries (vegas ${CMAKE_CXX_FLAGS})
-
-# reviso si HDF5 existe y linkeo
-find_package (HDF5 REQUIRED)
-if (HDF5_FOUND)
-  include_directories(${HDF5_INCLUDE_DIRS})
-  target_link_libraries (vegas ${HDF5_LIBRARIES})
-endif (HDF5_FOUND)
-
-# reviso si existe jsoncpp y linkeo
-find_package(jsoncpp REQUIRED)
-find_package(jsoncpp_FOUND)
-if (jsoncpp_FOUND)
-  include_directories(${JSONCPP_INCLUDE_DIR})
-  target_link_libraries (vegas ${JSONCPP_LIBRARIES})
-endif (jsoncpp_FOUND)
-
-# establezco que se debe compilar con c++11
-set_property(TARGET vegas PROPERTY CXX_STANDARD 11)
-
+ADD_EXECUTABLE(vegas main.cc ${SOURCES})
+TARGET_LINK_LIBRARIES(vegas ${LIBRARIES})
 
 # para instalar a /usr/local
-install(TARGETS vegas DESTINATION ${CMAKE_INSTALL_PREFIX})
+INSTALL(TARGETS vegas DESTINATION ${CMAKE_INSTALL_PREFIX})

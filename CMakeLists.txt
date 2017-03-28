@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(vegas CXX)
+project(vegas CXX C)
 
 # agrego el modulo para poder encontrar jsoncpp
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -37,4 +37,4 @@ set_property(TARGET vegas PROPERTY CXX_STANDARD 11)
 
 
 # para instalar a /usr/local
-install(TARGETS vegas DESTINATION ${CMAKE_INSTALL_PREFIX})
+install(TARGETS vegas DESTINATION /usr/bin/)

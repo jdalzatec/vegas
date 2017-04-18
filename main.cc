@@ -1,6 +1,7 @@
+#include "config.h"
+
 #include <iostream>
 #include <fstream>
-#include <jsoncpp/json/json.h>
 #include <string>
 #include <tuple>
 #include "system.h"
@@ -47,7 +48,7 @@ int main(int argc, char const *argv[])
 
 
     // The second argument is to know if the values should be printed.
-    System system_ = CREATE_SYSTEM(argv[1], false);
+    System system_ = CREATE_SYSTEM(argv[1], true);
 
     // The simulation is ran with this command:
     system_.cycle_netcdf();

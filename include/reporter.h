@@ -1,6 +1,7 @@
 #ifndef REPORTER
 #define REPORTER
-#include <hdf5.h>
+
+#include "config.h"
 #include "params.h"
 #include "lattice.h"
 

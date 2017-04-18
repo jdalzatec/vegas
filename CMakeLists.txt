@@ -22,6 +22,8 @@ find_package (HDF5 REQUIRED)
 if (HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIRS})
   target_link_libraries (vegas ${HDF5_LIBRARIES})
+  message(STATUS ${HDF5_C_INCLUDE_DIR})
+  file(WRITE ${CMAKE_SOURCE_DIR}/include/config.h "#include " \"${HDF5_C_INCLUDE_DIR}/hdf5.h\")
 endif (HDF5_FOUND)
 
 # reviso si existe jsoncpp y linkeo
@@ -30,6 +32,8 @@ find_package(jsoncpp_FOUND)
 if (jsoncpp_FOUND)
   include_directories(${JSONCPP_INCLUDE_DIR})
   target_link_libraries (vegas ${JSONCPP_LIBRARIES})
+  message(STATUS ${JSONCPP_INCLUDE_PREFIX})
+  file(APPEND ${CMAKE_SOURCE_DIR}/include/config.h "\n#include " \"${JSONCPP_INCLUDE_PREFIX}/json.h\")
 endif (jsoncpp_FOUND)
 
 # establezco que se debe compilar con c++11

@@ -34,7 +34,7 @@ public:
 
     void monteCarloStep_ising(Real T, Real H);
     
-    void cycle_netcdf();
+    void cycle();
 
     Lattice& getLattice();
 

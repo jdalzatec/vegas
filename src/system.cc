@@ -132,7 +132,7 @@ void System::monteCarloStep(Real T, Real H)
     }
 }
 
-void System::cycle_netcdf()
+void System::cycle()
 {
 
     std::map<std::string, std::vector<Real> > histMag;

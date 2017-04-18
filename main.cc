@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
     System system_ = CREATE_SYSTEM(argv[1], true);
 
     // The simulation is ran with this command:
-    system_.cycle_netcdf();
+    system_.cycle();
 
     // An announcement is printed to inform that the simulation has ended. 
     rlutil::setColor(rlutil::LIGHTGREEN);

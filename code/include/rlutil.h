@@ -97,11 +97,11 @@ RLUTIL_INLINE int kbhit(void) {
 	newt.c_cc[VMIN]  = 1; // minimum time to wait
 	newt.c_cc[VTIME] = 1; // minimum characters to wait for
 	tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-	ioctl(0, FIONREAD, &cnt); // Read count
-	struct timeval tv;
-	tv.tv_sec  = 0;
-	tv.tv_usec = 100;
-	select(STDIN_FILENO+1, NULL, NULL, NULL, &tv); // A small time delay
+	ioctl(0, 0, &cnt); // Read count
+	//struct timeval tv;
+	// tv.tv_sec  = 0;
+	// tv.tv_usec = 100;
+	//select(STDIN_FILENO+1, NULL, NULL, NULL, &tv); // A small time delay
 	tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
 	return cnt; // Return number of characters
 }

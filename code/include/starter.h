@@ -1,6 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <jsoncpp/json/json.h>
 #include <string>
 #include <tuple>
 #include "params.h"

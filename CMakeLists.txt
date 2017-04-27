@@ -6,11 +6,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 
 # agrego los directorios con los .h y agrego a SOURCES todos los archivos cc
-include_directories(include)
-file(GLOB SOURCES "src/*.cc")
+include_directories(code/include)
+file(GLOB SOURCES "code/src/*.cc")
 
 # creo el ejecutable
-add_executable(vegas main.cc ${SOURCES})
+add_executable(vegas code/main.cc ${SOURCES})
 
 
 # agrego banderas de compilacion
@@ -23,7 +23,7 @@ if (HDF5_FOUND)
   include_directories(${HDF5_INCLUDE_DIRS})
   target_link_libraries (vegas ${HDF5_LIBRARIES})
   message(STATUS ${HDF5_C_INCLUDE_DIR})
-  file(WRITE ${CMAKE_SOURCE_DIR}/include/config.h "#include " \"${HDF5_C_INCLUDE_DIR}/hdf5.h\")
+  file(WRITE ${CMAKE_SOURCE_DIR}/code/include/config.h "#include " \"${HDF5_C_INCLUDE_DIR}/hdf5.h\")
 endif (HDF5_FOUND)
 
 # reviso si existe jsoncpp y linkeo
@@ -33,7 +33,7 @@ if (jsoncpp_FOUND)
   include_directories(${JSONCPP_INCLUDE_DIR})
   target_link_libraries (vegas ${JSONCPP_LIBRARIES})
   message(STATUS ${JSONCPP_INCLUDE_PREFIX})
-  file(APPEND ${CMAKE_SOURCE_DIR}/include/config.h "\n#include " \"${JSONCPP_INCLUDE_PREFIX}/json.h\")
+  file(APPEND ${CMAKE_SOURCE_DIR}/code/include/config.h "\n#include " \"${JSONCPP_INCLUDE_PREFIX}/json.h\")
 endif (jsoncpp_FOUND)
 
 # establezco que se debe compilar con c++11

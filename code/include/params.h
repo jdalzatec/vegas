@@ -10,8 +10,8 @@ typedef unsigned int Index;
 const Array ZERO = {0.0, 0.0, 0.0};
 const Index AMOUNTCHUNKS = 5;
 
-// const Real Kb = 0.086179775; // mev
-// const Real Kb = 1.0; // mev
+// const Real kB = 0.086179775; // mev
+// const Real kB = 1.0; // mev
 
 template <typename T>
 std::ostream & operator << (std::ostream &o, std::valarray<T> val)

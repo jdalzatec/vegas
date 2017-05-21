@@ -17,7 +17,7 @@ public:
            Index mcs,
            Index seed,
            std::string outName,
-           Real Kb);
+           Real kB);
     ~System();
 
     Array magnetization();
@@ -47,7 +47,7 @@ public:
 private:
     Lattice lattice_;
     Index mcs_;
-    Real Kb_;
+    Real kB_;
     Index seed_;
     std::vector<Real> temps_;
     std::vector<Real> fields_;

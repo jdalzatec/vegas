@@ -12,7 +12,8 @@ Reporter::Reporter(std::string filename,
              const std::vector<Real>& temps,
              const std::vector<Real>& fields,
              Index mcs,
-             Index seed)
+             Index seed,
+             Real kB)
 {
     this -> file =  H5Fcreate(filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
 
@@ -150,6 +151,10 @@ Reporter::Reporter(std::string filename,
     hid_t attr_seed = H5Acreate(file, "seed", H5T_NATIVE_INT, aid2, H5P_DEFAULT, H5P_DEFAULT);
     this -> status = H5Awrite(attr_seed, H5T_NATIVE_INT, &seed);
     this -> status = H5Aclose (attr_seed);
+
+    hid_t attr_kB = H5Acreate(file, "kB", H5T_NATIVE_DOUBLE, aid2, H5P_DEFAULT, H5P_DEFAULT);
+    this -> status = H5Awrite(attr_kB, H5T_NATIVE_DOUBLE, &kB);
+    this -> status = H5Aclose (attr_kB);
 
 
 }

@@ -19,7 +19,8 @@ public:
              const std::vector<Real>& temps,
              const std::vector<Real>& fields,
              Index mcs,
-             Index seed);
+             Index seed,
+             Real kB);
 
     void partial_report(const std::vector<Real>& enes, const std::map<std::string, std::vector<Real> >& histMag, Lattice& lattice, Index index);
     void close();

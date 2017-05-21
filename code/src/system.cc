@@ -18,10 +18,10 @@ System::System(std::string fileName,
                Index mcs,
                Index seed,
                std::string outName,
-               Real Kb) : lattice_(fileName)
+               Real kB) : lattice_(fileName)
 {
     this -> mcs_ = mcs;
-    this -> Kb_ = Kb;
+    this -> kB_ = kB;
     this -> temps_ = temps;
     this -> fields_ = fields;
     this -> intRandomGenerator_ = std::uniform_int_distribution<>(0, this -> lattice_.getAtoms().size() - 1);
@@ -47,7 +47,8 @@ System::System(std::string fileName,
                                  this -> temps_,
                                  this -> fields_,
                                  this -> mcs_,
-                                 this -> seed_);
+                                 this -> seed_,
+                                 this -> kB_);
 }
 
 System::~System()
@@ -108,7 +109,7 @@ void System::randomizeSpins(Real T)
             this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            (this -> Kb_) * T, atom);
+            T, atom);
 }
 
 
@@ -123,11 +124,11 @@ void System::monteCarloStep(Real T, Real H)
         atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            (this -> Kb_) * T, atom);
+            T, atom);
         Real newEnergy = this -> localEnergy(atom, H);
         Real deltaEnergy = newEnergy - oldEnergy;
 
-        if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (this -> Kb_ * T)))
+        if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (this -> kB_ * T)))
             atom.revertSpin();
     }
 }

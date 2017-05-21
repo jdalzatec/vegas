@@ -116,7 +116,7 @@ namespace STARTER{
                       const std::string& sample,
                       const Index& mcs,
                       const std::string& out,
-                      const Real& Kb,
+                      const Real& kB,
                       const Index& seed,
                       const std::string& initialstate)
     {
@@ -137,7 +137,7 @@ namespace STARTER{
             std::cout << "\t\tNum " << type.first << " Ions  = \n\t\t\t" << type.second << std::endl;
         }
 
-        std::cout << "\t\tkB = \n\t\t\t" << Kb << std::endl;
+        std::cout << "\t\tkB = \n\t\t\t" << kB << std::endl;
         std::cout << "\t\tseed = \n\t\t\t" << system_.getSeed() << std::endl;
 
         std::cout << std::endl;
@@ -164,9 +164,9 @@ namespace STARTER{
         // By default the amount of MCS is 5000.
         Index mcs = root.get("mcs", 5000).asInt();
 
-        // Put the value of Kb into the variable 'Kb'.
-        // By default the value of Kb is 0.086179775 meV (milielectronvolts).
-        Real Kb = root.get("Kb", 1.0).asDouble();
+        // Put the value of kB into the variable 'kB'.
+        // By default the value of kB is 0.086179775 meV (milielectronvolts).
+        Real kB = root.get("kB", 1.0).asDouble();
 
         // Put the output name into the variable 'out'.
         // By default the value of out is the sample name
@@ -221,41 +221,39 @@ namespace STARTER{
             const Json::Value temps_json = root["temperature"];
             Real start_temp = temps_json.get("start", 0.001).asDouble();
             Real final_temp = temps_json.get("final", 10.0).asDouble();
-            Index points = temps_json.get("points", 5).asUInt() - 1;
             bool cycle = temps_json.get("cycle", false).asBool();
 
-            Real delta = (final_temp - start_temp) / points;
+            Index points = temps_json.get("points", 5).asUInt();
+            Real delta = (final_temp - start_temp) / Real(points - 1);
 
-            if (start_temp >= final_temp)
+            if (temps_json.isMember("points") == true && temps_json.isMember("delta") == true)
             {
-                for (T = start_temp; T >= final_temp; T += delta)
+                EXIT("Temperature section in Json is not consistent because 'points' and 'delta' were given at the same time !!!");
+            }
+            else if (temps_json.isMember("points") == false && temps_json.isMember("delta") == true)
+            {
+                delta = temps_json.get("delta", 0.1).asDouble();
+                if ((((final_temp - start_temp) / delta + 1) <= 0) || delta == 0.0)
+                    EXIT("Temperature section in Json has a invalid value for 'delta' !!!");
+                points = (final_temp - start_temp) / delta + 1;
+            }
+
+            Real T = start_temp;
+            for (Index _ = 0; _ < points; ++_)
+            {
+                temps.push_back(T);
+                T += delta;
+            }
+            T -= 2*delta;
+            if (cycle)
+            {
+                for (Index _ = 0; _ < (points - 1); ++_)
                 {
                     temps.push_back(T);
-                }
-
-                if (cycle)
-                {
-                    for (T = final_temp; T <= start_temp; T -= delta)
-                    {
-                        temps.push_back(T);
-                    }
+                    T -= delta;
                 }
             }
-            else
-            {
-                for (T = start_temp; T <= final_temp; T += delta)
-                {
-                    temps.push_back(T);
-                }
 
-                if (cycle)
-                {
-                    for (T = final_temp; T >= start_temp; T -= delta)
-                    {
-                        temps.push_back(T);
-                    }
-                }
-            }
         }
 
         // As we proceed with the temperature, we need to do the same but now
@@ -290,39 +288,36 @@ namespace STARTER{
             const Json::Value fields_json = root["field"];
             Real start_field = fields_json.get("start", 0.001).asDouble();
             Real final_field = fields_json.get("final", 10.0).asDouble();
-            Index points = fields_json.get("points", 5).asUInt() - 1;
             bool cycle = fields_json.get("cycle", false).asBool();
 
-            Real delta = (final_field - start_field) / points;
+            Index points = fields_json.get("points", 5).asUInt();
+            Real delta = (final_field - start_field) / Real(points - 1);
 
-            if (start_field >= final_field)
+            if (fields_json.isMember("points") == true && fields_json.isMember("delta") == true)
             {
-                for (H = start_field; H >= final_field; H += delta)
-                {
-                    fields.push_back(H);
-                }
-
-                if (cycle)
-                {
-                    for (H = final_field; H <= start_field; H -= delta)
-                    {
-                        fields.push_back(H);
-                    }
-                }
+                EXIT("Field section in Json is not consistent because 'points' and 'delta' were given at the same time !!!");
             }
-            else
+            else if (fields_json.isMember("points") == false && fields_json.isMember("delta") == true)
             {
-                for (H = start_field; H <= final_field; H += delta)
+                delta = fields_json.get("delta", 0.1).asDouble();
+                if ((((final_field - start_field) / delta + 1) <= 0) || delta == 0.0)
+                    EXIT("Field section in Json has a invalid value for 'delta' !!!");
+                points = (final_field - start_field) / delta + 1;
+            }
+
+            Real H = start_field;
+            for (Index _ = 0; _ < points; ++_)
+            {
+                fields.push_back(H);
+                H += delta;
+            }
+            H -= 2*delta;
+            if (cycle)
+            {
+                for (Index _ = 0; _ < (points - 1); ++_)
                 {
                     fields.push_back(H);
-                }
-
-                if (cycle)
-                {
-                    for (H = final_field; H >= start_field; H -= delta)
-                    {
-                        fields.push_back(H);
-                    }
+                    H -= delta;
                 }
             }
         }
@@ -361,7 +356,7 @@ namespace STARTER{
         CHECK(sample, mcs, temps, fields);
 
         // Create the system with the previous values.
-        System system_(sample, temps, fields, mcs, seed, out, Kb);
+        System system_(sample, temps, fields, mcs, seed, out, kB);
 
         // In case that an initial state is given in the Json file,
         // we checked it. If this is not given, the initial
@@ -378,7 +373,7 @@ namespace STARTER{
         }
 
         if (print)
-            PRINT_VALUES(system_, sample, mcs, out, Kb, mcs, initialstate);
+            PRINT_VALUES(system_, sample, mcs, out, kB, mcs, initialstate);
 
         return system_;
     }

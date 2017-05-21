@@ -67,7 +67,7 @@ public:
     std::function<void(
         std::mt19937_64& engine,
         std::uniform_real_distribution<>& realRandomGenerator,
-        std::normal_distribution<>& gaussianRandomGenerator, Real KbT, Atom& atom)> randomizeSpin;
+        std::normal_distribution<>& gaussianRandomGenerator, Real kBT, Atom& atom)> randomizeSpin;
 
 
     void revertSpin();

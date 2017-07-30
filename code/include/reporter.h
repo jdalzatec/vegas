@@ -20,7 +20,7 @@ public:
              const std::vector<Real>& fields,
              Index mcs,
              Index seed,
-             Real kB);
+             Real kb);
 
     void partial_report(const std::vector<Real>& enes, const std::map<std::string, std::vector<Real> >& histMag, Lattice& lattice, Index index);
     void close();

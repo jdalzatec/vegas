@@ -242,7 +242,7 @@ void Atom::setModel(const std::string& model)
         this -> randomizeSpin = [](
             std::mt19937_64& engine,
             std::uniform_real_distribution<>& realRandomGenerator,
-            std::normal_distribution<>& gaussianRandomGenerator, Real kBT, Atom& atom)
+            std::normal_distribution<>& gaussianRandomGenerator, Real kbT, Atom& atom)
         {
             atom.setOldSpin(atom.getSpin());
             Real phi = 2.0 * M_PI * realRandomGenerator(engine);
@@ -256,7 +256,7 @@ void Atom::setModel(const std::string& model)
         this -> randomizeSpin = [](
             std::mt19937_64& engine,
             std::uniform_real_distribution<>& realRandomGenerator,
-            std::normal_distribution<>& gaussianRandomGenerator, Real kBT, Atom& atom)
+            std::normal_distribution<>& gaussianRandomGenerator, Real kbT, Atom& atom)
         {
             atom.setOldSpin(atom.getSpin());
             atom.setSpin(  - atom.getSpin());
@@ -267,7 +267,7 @@ void Atom::setModel(const std::string& model)
         this -> randomizeSpin = [](
             std::mt19937_64& engine,
             std::uniform_real_distribution<>& realRandomGenerator,
-            std::normal_distribution<>& gaussianRandomGenerator, Real kBT, Atom& atom)
+            std::normal_distribution<>& gaussianRandomGenerator, Real kbT, Atom& atom)
         {
             atom.setOldSpin(atom.getSpin());
             atom.setSproj(int(realRandomGenerator(engine) * atom.getPossibleProjections().size()));

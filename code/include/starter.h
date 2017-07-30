@@ -116,7 +116,7 @@ namespace STARTER{
                       const std::string& sample,
                       const Index& mcs,
                       const std::string& out,
-                      const Real& kB,
+                      const Real& kb,
                       const Index& seed,
                       const std::string& initialstate)
     {
@@ -137,7 +137,7 @@ namespace STARTER{
             std::cout << "\t\tNum " << type.first << " Ions  = \n\t\t\t" << type.second << std::endl;
         }
 
-        std::cout << "\t\tkB = \n\t\t\t" << kB << std::endl;
+        std::cout << "\t\tkb = \n\t\t\t" << kb << std::endl;
         std::cout << "\t\tseed = \n\t\t\t" << system_.getSeed() << std::endl;
 
         std::cout << std::endl;
@@ -164,9 +164,9 @@ namespace STARTER{
         // By default the amount of MCS is 5000.
         Index mcs = root.get("mcs", 5000).asInt();
 
-        // Put the value of kB into the variable 'kB'.
-        // By default the value of kB is 0.086179775 meV (milielectronvolts).
-        Real kB = root.get("kB", 1.0).asDouble();
+        // Put the value of kb into the variable 'kb'.
+        // By default the value of kb is 0.086179775 meV (milielectronvolts).
+        Real kb = root.get("kb", 1.0).asDouble();
 
         // Put the output name into the variable 'out'.
         // By default the value of out is the sample name
@@ -356,7 +356,7 @@ namespace STARTER{
         CHECK(sample, mcs, temps, fields);
 
         // Create the system with the previous values.
-        System system_(sample, temps, fields, mcs, seed, out, kB);
+        System system_(sample, temps, fields, mcs, seed, out, kb);
 
         // In case that an initial state is given in the Json file,
         // we checked it. If this is not given, the initial
@@ -373,7 +373,7 @@ namespace STARTER{
         }
 
         if (print)
-            PRINT_VALUES(system_, sample, mcs, out, kB, mcs, initialstate);
+            PRINT_VALUES(system_, sample, mcs, out, kb, mcs, initialstate);
 
         return system_;
     }

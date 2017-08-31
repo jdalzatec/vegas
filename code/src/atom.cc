@@ -245,10 +245,13 @@ void Atom::setModel(const std::string& model)
             std::normal_distribution<>& gaussianRandomGenerator, Real kbT, Atom& atom)
         {
             atom.setOldSpin(atom.getSpin());
-            Real phi = 2.0 * M_PI * realRandomGenerator(engine);
-            Real theta = std::acos(2.0 * realRandomGenerator(engine) - 1.0);
-            Array unitArray({std::sin(theta) * std::cos(phi), std::sin(theta) * std::sin(phi), std::cos(theta)});
-            atom.setSpin( atom.getSpinNorm() * unitArray);
+            Array gamma({gaussianRandomGenerator(engine), gaussianRandomGenerator(engine), gaussianRandomGenerator(engine)});
+            Array unitArray = gamma / std::sqrt((gamma * gamma).sum());
+            // std::cout << unitArray << std::endl;
+            // Real phi = 2.0 * M_PI * realRandomGenerator(engine);
+            // Real theta = std::acos(2.0 * realRandomGenerator(engine) - 1.0);
+            // Array unitArray({std::sin(theta) * std::cos(phi), std::sin(theta) * std::sin(phi), std::cos(theta)});
+            atom.setSpin( unitArray);
         };
     }
     else if (model == "ising")

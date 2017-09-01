@@ -10,13 +10,7 @@ class Atom
 {
 public:
     Atom();
-    Atom(Index index);
-    Atom(Index index, Array spin);
-    Atom(Index index, Array spin, Array position, Array anisotropy);
-    Atom(Index index, Array spin, std::vector<Atom*> nbhs,
-         std::vector<Real> exchanges);
-    Atom(Index index, Array spin, std::vector<Atom*> nbhs,
-         std::vector<Real> exchanges, Array position, Array anisotropy);
+    Atom(Index index, Array spin, Array position);
     ~Atom();
 
 
@@ -45,14 +39,11 @@ public:
     void setNbhs(const std::vector<Atom*>& nbhs);
     void setExchanges(const std::vector<Real>& exchanges);
     void setType(const std::string& type);
-    void setTypeAnisotropy(const std::string& typeAnisotropy);
     void setSpin(const Array& spin);
     void setOldSpin(const Array& oldSpin);
-    void setAnisotropyUnit(const Array& anistropyUnit);
     void setExternalField(const Array& externalField);
     void setSproj(const Index& Sproj);
 
-    void setKan(const Real& Kan);
     void addNbh(Atom* nbh);
     void addExchange(Real exchange);
     
@@ -61,7 +52,7 @@ public:
 
 
     Real getExchangeEnergy() const;
-    std::function<Real(const Atom&)> getAnisotropyEnergy;
+    Real getAnisotropyEnergy() const;
     Real getZeemanEnergy(Real& H) const;
 
     std::function<void(
@@ -71,6 +62,9 @@ public:
 
 
     void revertSpin();
+
+
+    void addAnisotropyAxis(const Array& axis, const Real& kan);
 private:
     Array position_;
     Index index_;
@@ -78,11 +72,12 @@ private:
     Real spinNorm_;
     Array spin_;
     Array oldSpin_;
-    Array anisotropyUnit_;
     Array externalField_;
-    Real Kan_;
+
+    std::vector<Array> anisotropyAxis_;
+    std::vector<Real> kan_;
+
     std::string type_;
-    std::string typeAnisotropy_;
     std::vector<Real> exchanges_;
     std::vector<double> projections_;
     std::vector<double> possibleProjections_;

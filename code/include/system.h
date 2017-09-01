@@ -20,7 +20,7 @@ public:
            Real kb);
     ~System();
 
-    Array magnetization();
+    void ComputeMagnetization();
     Real localEnergy(Index index, Real H);
     Real localEnergy(const Atom& atom, Real H);
 
@@ -43,6 +43,8 @@ public:
     const std::map<std::string, Array>& getMagnetizationType() const;
 
     void setState(std::string fileState);
+
+    void setAnisotropies(std::vector<std::string> anisotropyfiles);
 
 private:
     Lattice lattice_;

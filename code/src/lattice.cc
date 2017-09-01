@@ -27,11 +27,6 @@ Lattice::Lattice(std::string fileName)
     Real py;
     Real pz;
     Real spinNorm;
-    Real ax;
-    Real ay;
-    Real az;
-    Real Kan;
-    std::string typeAnisotropy;
     Real hx;
     Real hy;
     Real hz;
@@ -40,20 +35,16 @@ Lattice::Lattice(std::string fileName)
 
     for (Index index = 0; index < num_ions; ++index)
     {
-        file >> index >> px >> py >> pz >> spinNorm >> ax >> ay >> az >> Kan >> typeAnisotropy >> hx >> hy >> hz >> type >> model;
+        file >> index >> px >> py >> pz >> spinNorm >> hx >> hy >> hz >> type >> model;
 
         Array position({px, py, pz});
-        Array anisotropyUnit({ax, ay, az});
 
         Array spin({0.0, 0.0, spinNorm}); // ALWAYS THE INITIAL SPIN WILL BE IN THE Z-DIRECTION
 
-        std::transform(typeAnisotropy.begin(), typeAnisotropy.end(), typeAnisotropy.begin(), tolower);
         std::transform(model.begin(), model.end(), model.begin(), tolower);
 
-        Atom atom(index, spin, position, anisotropyUnit);
+        Atom atom(index, spin, position);
         atom.setType(type);
-        atom.setTypeAnisotropy(typeAnisotropy);
-        atom.setKan(Kan);
         atom.setExternalField({hx, hy, hz});
         atom.setModel(model);
 

@@ -3,51 +3,20 @@
 #include "rlutil.h"
 
 
-Atom::Atom() : Atom(0, ZERO, std::vector<Atom*>(), std::vector<Real>(), ZERO, ZERO)
+Atom::Atom() : Atom(0, ZERO, ZERO)
 {
 
 }
 
-Atom::Atom(Index index) : Atom(index, ZERO, std::vector<Atom*>(), std::vector<Real>(), ZERO, ZERO)
+Atom::Atom(Index index, Array spin, Array position)
 {
-
-}
-
-Atom::Atom(Index index, Array spin) 
-        : Atom(index, spin, std::vector<Atom*>(), std::vector<Real>(), ZERO, ZERO)
-{
-
-}
-
-Atom::Atom(Index index, Array spin,
-           Array position, Array anisotropy) : Atom(index, spin,
-           std::vector<Atom*>(), std::vector<Real>(), position, anisotropy)
-{
-
-}
-
-Atom::Atom(Index index, Array spin, std::vector<Atom*> nbhs,
-           std::vector<Real> exchanges) 
-        : Atom(index, spin, nbhs, exchanges, ZERO, ZERO)
-{
-
-}
-
-Atom::Atom(Index index, Array spin, std::vector<Atom*> nbhs,
-           std::vector<Real> exchanges,
-           Array position, Array anisotropy)
-{
-
-    if (nbhs.size() != exchanges.size())
-        throw std::length_error("The exchanges and neighbors dont have the same length !!!");
 
     this -> index_ = index;
     this -> spin_ = spin;
-    this -> nbhs_ = nbhs;
-    this -> exchanges_ = exchanges;
+    this -> nbhs_ = std::vector<Atom*>();
+    this -> anisotropyAxis_ = std::vector<Array>();
+    this -> exchanges_ = std::vector<Real>();
     this -> position_ = position;
-    this -> anisotropyUnit_ = anisotropy;
-    this -> Kan_ = 0.0;
     this -> spinNorm_ = sqrt((this -> spin_ * this -> spin_).sum());
     this -> type_ = "nothing";
 
@@ -97,11 +66,6 @@ const Array& Atom::getSpin() const
     return this -> spin_;
 }
 
-const Array& Atom::getAnisotropyUnit() const
-{
-    return this -> anisotropyUnit_;
-}
-
 const std::vector<Real>& Atom::getExchanges() const
 {
     return this -> exchanges_;
@@ -110,11 +74,6 @@ const std::vector<Real>& Atom::getExchanges() const
 const std::string& Atom::getType() const
 {
     return this -> type_;
-}
-
-const Real& Atom::getKan() const
-{
-    return this -> Kan_;
 }
 
 const std::vector<double>& Atom::getProjections() const
@@ -148,11 +107,6 @@ void Atom::setSpin(const Array& spin)
     // this -> spinNorm_ = sqrt((this -> spin_ * this -> spin_).sum());
 }
 
-void Atom::setAnisotropyUnit(const Array& anisotropyUnit)
-{
-    this -> anisotropyUnit_ = anisotropyUnit;
-}
-
 void Atom::setExchanges(const std::vector<Real>& exchanges)
 {
     this -> exchanges_ = exchanges;
@@ -161,11 +115,6 @@ void Atom::setExchanges(const std::vector<Real>& exchanges)
 void Atom::setType(const std::string& type)
 {
     this -> type_ = type;
-}
-
-void Atom::setKan(const Real& Kan)
-{
-    this -> Kan_ = Kan;
 }
 
 void Atom::addNbh(Atom* nbh)
@@ -193,40 +142,6 @@ void Atom::removePossibleProjection(Index i)
     this -> possibleProjections_.erase(this -> possibleProjections_.begin() + i);
 }
 
-const std::string& Atom::getTypeAnisotropy() const
-{
-    return this -> typeAnisotropy_;
-}
-
-void Atom::setTypeAnisotropy(const std::string& typeAnisotropy)
-{
-    this -> typeAnisotropy_ = typeAnisotropy;
-
-    if (typeAnisotropy == "uniaxial")
-    {
-        this -> getAnisotropyEnergy = [](const Atom& atom){
-            return - atom.getKan() * ((atom.getAnisotropyUnit() * atom.getSpin()).sum() * (atom.getAnisotropyUnit() * atom.getSpin()).sum());
-        };
-    }
-    else if (typeAnisotropy == "cubic")
-    {
-        this -> getAnisotropyEnergy = [](const Atom& atom){
-            double sx =  atom.getSpin()[0];
-            double sy =  atom.getSpin()[1];
-            double sz =  atom.getSpin()[2];
-            return - atom.getKan() * (sx * sx * sy * sy + sy * sy * sz * sz + sx * sx * sz * sz);
-        };
-    }
-    else
-    {
-        rlutil::setColor(rlutil::LIGHTRED);
-        std::cout << "The anisotropy must be [uniaxial - cubic] !!!" << std::endl;
-        std::cout << "Unsuccesful completion !!!" << std::endl;
-        rlutil::resetColor();
-        exit(EXIT_FAILURE);
-    }
-
-}
 
 const std::string& Atom::getModel() const
 {
@@ -367,4 +282,19 @@ void Atom::revertSpin()
 {
     this -> changeProjection(this -> Sproj_, this -> spin_[2]);
     this -> spin_ = this -> oldSpin_;
+}
+
+Real Atom::getAnisotropyEnergy() const
+{
+    Real anisotropyEnergy = 0.0;
+    Index num = 0;
+    for (auto&& axis : this -> anisotropyAxis_)
+        anisotropyEnergy -= this -> kan_.at(num++) * (this -> spin_ * axis).sum() * (this -> spin_ * axis).sum();
+    return anisotropyEnergy;
+}
+
+void Atom::addAnisotropyAxis(const Array& axis, const Real& kan)
+{
+    this -> anisotropyAxis_.push_back(axis);
+    this -> kan_.push_back(kan);
 }

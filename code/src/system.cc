@@ -56,10 +56,9 @@ System::~System()
 
 }
 
-Array System::magnetization()
+void System::ComputeMagnetization()
 {
     Array mag = ZERO;
-
     for (auto&& mt : this -> magnetizationType_)
         mt.second = ZERO;
 
@@ -70,8 +69,6 @@ Array System::magnetization()
     }
 
     this -> magnetizationType_.at("magnetization") = mag;
-
-    return mag;
 }
 
 Real System::localEnergy(Index index, Real H)
@@ -84,7 +81,7 @@ Real System::localEnergy(const Atom& atom, Real H)
 {
     Real energy = 0.0;
     energy += atom.getExchangeEnergy();
-    energy += atom.getAnisotropyEnergy(atom);
+    energy += atom.getAnisotropyEnergy();
     energy += atom.getZeemanEnergy(H);
     return energy;
 }
@@ -96,7 +93,7 @@ Real System::totalEnergy(Real H)
     for (auto&& atom : this -> lattice_.getAtoms())
     {
         exchange_energy += atom.getExchangeEnergy();
-        other_energy += atom.getAnisotropyEnergy(atom);
+        other_energy += atom.getAnisotropyEnergy();
         other_energy += atom.getZeemanEnergy(H);
     }
     return 0.5 * exchange_energy + other_energy;
@@ -166,7 +163,8 @@ void System::cycle()
             this -> monteCarloStep(T, H);
             enes.push_back(this -> totalEnergy(H));
             
-            auto mag = this -> magnetization();
+            this -> ComputeMagnetization();
+            auto mag = this -> magnetizationType_.at("magnetization");
                 
             for (auto&& item : this -> magnetizationType_)
             {
@@ -232,5 +230,22 @@ void System::setState(std::string fileState)
             exit(EXIT_FAILURE);
         }
         atom.setSpin(spin);
+    }
+}
+
+void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
+{
+    Real ax;
+    Real ay;
+    Real az;
+    Real kan;
+    for (auto&& fileName : anisotropyfiles)
+    {
+        std::ifstream file(fileName);
+        for (Index i = 0; i < this -> lattice_.getAtoms().size(); ++i)
+        {
+            file >> ax >> ay >> az >> kan;
+            this -> lattice_.getAtoms().at(i).addAnisotropyAxis({ax, ay, az}, kan);
+        }
     }
 }

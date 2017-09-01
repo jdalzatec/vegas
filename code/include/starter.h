@@ -118,7 +118,8 @@ namespace STARTER{
                       const std::string& out,
                       const Real& kb,
                       const Index& seed,
-                      const std::string& initialstate)
+                      const std::string& initialstate,
+                      const std::vector<std::string>& anisotropyfiles)
     {
         // The initial values are printed for the user visualization.
         std::cout << "\t\tSample file = \n\t\t\t" << sample << std::endl;
@@ -128,6 +129,12 @@ namespace STARTER{
         {
             std::cout << "\t\tInitial state file = \n\t\t\t" << initialstate << std::endl;
         }
+        if (anisotropyfiles.size() != 0)
+        {
+            for (auto&& anisotropyfile : anisotropyfiles)
+                std::cout << "\t\tAnisotropy file = \n\t\t\t" << anisotropyfile << std::endl;
+        }
+
         std::cout << std::endl;
         std::cout << "\t\tNum Ions = \n\t\t\t" << system_.getLattice().getAtoms().size() << std::endl;
         
@@ -372,8 +379,31 @@ namespace STARTER{
             system_.setState(root.get("initialstate", "").asString());
         }
 
+
+        std::vector<std::string> anisotropyfiles;
+        if (root.isMember("anisotropy") == true)
+        {
+            if (root.get("anisotropy", 0.0).type() == 4) // only a string
+            {
+                std::string anisotropyfile = root.get("anisotropy", "").asString();
+                CHECKFILE(anisotropyfile);
+                anisotropyfiles.push_back(anisotropyfile);
+            }
+            else if (root.get("anisotropy", 0.0).type() == 6) // a set of strings
+            {
+                const Json::Value files = root["anisotropy"];
+                for (Index i = 0; i < files.size(); ++i)
+                {
+                    std::string anisotropyfile = files[i].asString();
+                    CHECKFILE(anisotropyfile);
+                    anisotropyfiles.push_back(anisotropyfile);
+                }
+            }
+        }
+        system_.setAnisotropies(anisotropyfiles);
+
         if (print)
-            PRINT_VALUES(system_, sample, mcs, out, kb, mcs, initialstate);
+            PRINT_VALUES(system_, sample, mcs, out, kb, mcs, initialstate, anisotropyfiles);
 
         return system_;
     }

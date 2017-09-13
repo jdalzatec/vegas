@@ -52,8 +52,8 @@ public:
 
 
     Real getExchangeEnergy() const;
-    Real getAnisotropyEnergy() const;
-    Real getZeemanEnergy(Real& H) const;
+    Real getZeemanEnergy(const Real& H) const;
+    Real getAnisotropyEnergy(const Atom& atom) const;
 
     std::function<void(
         std::mt19937_64& engine,
@@ -64,7 +64,7 @@ public:
     void revertSpin();
 
 
-    void addAnisotropyAxis(const Array& axis, const Real& kan);
+    void addAnisotropyTerm(const std::function<Real(const Atom&)>& func);
 private:
     Array position_;
     Index index_;
@@ -73,9 +73,6 @@ private:
     Array spin_;
     Array oldSpin_;
     Array externalField_;
-
-    std::vector<Array> anisotropyAxis_;
-    std::vector<Real> kan_;
 
     std::string type_;
     std::vector<Real> exchanges_;
@@ -86,6 +83,7 @@ private:
 
     Index Sproj_;
 
+    std::vector< std::function<Real(const Atom&)> > anisotropyTerms_;
 };
 
 

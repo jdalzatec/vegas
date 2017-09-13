@@ -14,7 +14,6 @@ Atom::Atom(Index index, Array spin, Array position)
     this -> index_ = index;
     this -> spin_ = spin;
     this -> nbhs_ = std::vector<Atom*>();
-    this -> anisotropyAxis_ = std::vector<Array>();
     this -> exchanges_ = std::vector<Real>();
     this -> position_ = position;
     this -> spinNorm_ = sqrt((this -> spin_ * this -> spin_).sum());
@@ -253,10 +252,19 @@ Real Atom::getExchangeEnergy() const
     return energy;
 }
 
-Real Atom::getZeemanEnergy(Real& H) const
+Real Atom::getZeemanEnergy(const Real& H) const
 {
     return - H * (this -> getSpin() * this -> getExternalField()).sum();
 }
+
+Real Atom::getAnisotropyEnergy(const Atom& atom) const
+{
+    Real anisotropyEnergy = 0.0;
+    for (auto&& func : this -> anisotropyTerms_)
+        anisotropyEnergy += func(atom);
+    return anisotropyEnergy;
+}
+
 
 void Atom::setOldSpin(const Array& oldSpin)
 {
@@ -284,17 +292,7 @@ void Atom::revertSpin()
     this -> spin_ = this -> oldSpin_;
 }
 
-Real Atom::getAnisotropyEnergy() const
+void Atom::addAnisotropyTerm(const std::function<Real(const Atom&)>& func)
 {
-    Real anisotropyEnergy = 0.0;
-    Index num = 0;
-    for (auto&& axis : this -> anisotropyAxis_)
-        anisotropyEnergy -= this -> kan_.at(num++) * (this -> spin_ * axis).sum() * (this -> spin_ * axis).sum();
-    return anisotropyEnergy;
-}
-
-void Atom::addAnisotropyAxis(const Array& axis, const Real& kan)
-{
-    this -> anisotropyAxis_.push_back(axis);
-    this -> kan_.push_back(kan);
+    this -> anisotropyTerms_.push_back(func);
 }

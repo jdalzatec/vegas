@@ -383,7 +383,7 @@ namespace STARTER{
         std::vector<std::string> anisotropyfiles;
         if (root.isMember("anisotropy") == true)
         {
-            if (root.get("anisotropy", 0.0).type() == 4) // only a string
+            if (root.get("anisotropy", 0.0).type() == 4) // just a string
             {
                 std::string anisotropyfile = root.get("anisotropy", "").asString();
                 CHECKFILE(anisotropyfile);

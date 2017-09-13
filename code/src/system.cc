@@ -3,7 +3,30 @@
 #include <iomanip>
 #include <cstdio>
 #include <fstream>
+#include <sstream>
 #include "rlutil.h"
+#include <functional>
+
+// Message to exit and launch an error.
+void EXIT(std::string message)
+{
+    rlutil::setColor(rlutil::LIGHTRED);
+    std::cout << message << std::endl;
+    std::cout << "Unsuccesful completion !!!" << std::endl;
+    rlutil::resetColor();
+    exit(EXIT_FAILURE);
+}
+
+std::vector<std::string> split(const std::string& s, char delim)
+{
+    std::stringstream ss(s);
+    std::string item;
+    std::vector<std::string> tokens;
+    while (std::getline(ss, item, delim)) {
+        tokens.push_back(item);
+    }
+    return tokens;
+}
 
 const std::string ETA_seconds(const Index& seconds)
 {
@@ -81,7 +104,7 @@ Real System::localEnergy(const Atom& atom, Real H)
 {
     Real energy = 0.0;
     energy += atom.getExchangeEnergy();
-    energy += atom.getAnisotropyEnergy();
+    energy += atom.getAnisotropyEnergy(atom);
     energy += atom.getZeemanEnergy(H);
     return energy;
 }
@@ -93,7 +116,7 @@ Real System::totalEnergy(Real H)
     for (auto&& atom : this -> lattice_.getAtoms())
     {
         exchange_energy += atom.getExchangeEnergy();
-        other_energy += atom.getAnisotropyEnergy();
+        other_energy += atom.getAnisotropyEnergy(atom);
         other_energy += atom.getZeemanEnergy(H);
     }
     return 0.5 * exchange_energy + other_energy;
@@ -225,27 +248,70 @@ void System::setState(std::string fileState)
         file >> sx >> sy >> sz;
         Array spin({atof(sx.c_str()), atof(sy.c_str()), atof(sz.c_str())});
         if (std::sqrt((spin*spin).sum()) != atom.getSpinNorm())
-        {
-            std::cout << "The spin norm of the site " << atom.getIndex() << " does not match with the initial state given !!!" << std::endl;
-            exit(EXIT_FAILURE);
-        }
+            EXIT("The spin norm of the site " + std::to_string(atom.getIndex()) + " does not match with the initial state given !!!");
+
         atom.setSpin(spin);
     }
 }
 
 void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
 {
-    Real ax;
-    Real ay;
-    Real az;
-    Real kan;
     for (auto&& fileName : anisotropyfiles)
     {
         std::ifstream file(fileName);
         for (Index i = 0; i < this -> lattice_.getAtoms().size(); ++i)
         {
-            file >> ax >> ay >> az >> kan;
-            this -> lattice_.getAtoms().at(i).addAnisotropyAxis({ax, ay, az}, kan);
+            std::string line;
+            std::getline(file, line);
+            std::vector<std::string> sep = split(line, ' ');
+
+            if (sep.size() == 4) // add an uniaxial term
+            {
+                Real ax = atof(sep[0].c_str());
+                Real ay = atof(sep[1].c_str());
+                Real az = atof(sep[2].c_str());
+                Real kan = atof(sep[3].c_str());
+
+                std::function<Real(const Atom&)> func = [kan, ax, ay, az](const Atom& atom){
+                   return - kan * (ax * atom.getSpin()[0] + ay * atom.getSpin()[1] + az * atom.getSpin()[2]) * (ax * atom.getSpin()[0] + ay * atom.getSpin()[1] + az * atom.getSpin()[2]);
+                };
+                this -> lattice_.getAtoms().at(i).addAnisotropyTerm(func);
+            }
+            else if (sep.size() == 7)
+            {
+                Real Ax = atof(sep[0].c_str());
+                Real Ay = atof(sep[1].c_str());
+                Real Az = atof(sep[2].c_str());
+                Real Bx = atof(sep[3].c_str());
+                Real By = atof(sep[4].c_str());
+                Real Bz = atof(sep[5].c_str());
+
+                Real Cx = Ay*Bz - Az*By;
+                Real Cy = Az*Bx - Ax*Bz;
+                Real Cz = Ax*By - Ay*Bx;
+
+                Array A = {Ax, Ay, Az};
+                Array B = {Bx, By, Bz};
+                Array C = {Cx, Cy, Cz};
+                
+                Real kan = atof(sep[6].c_str());
+
+                std::function<Real(const Atom&)> func = [kan, A, B, C](const Atom& atom){
+                    return - kan * ((atom.getSpin() * A).sum()*(atom.getSpin() * A).sum()*(atom.getSpin() * B).sum()*(atom.getSpin() * B).sum()
+                    + (atom.getSpin() * A).sum()*(atom.getSpin() * A).sum()*(atom.getSpin() * C).sum()*(atom.getSpin() * C).sum()
+                    + (atom.getSpin() * B).sum()*(atom.getSpin() * B).sum()*(atom.getSpin() * C).sum()*(atom.getSpin() * C).sum());
+                };
+
+                this -> lattice_.getAtoms().at(i).addAnisotropyTerm(func);
+
+            }
+            else
+            {
+                EXIT("The anisotropy file with name " + fileName + " does not have the correct format !!!");
+            }
+
         }
+        
     }
+
 }

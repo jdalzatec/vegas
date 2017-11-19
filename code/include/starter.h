@@ -172,7 +172,7 @@ namespace STARTER{
         Index mcs = root.get("mcs", 5000).asInt();
 
         // Put the value of kb into the variable 'kb'.
-        // By default the value of kb is 0.086179775 meV (milielectronvolts).
+        // By default the value of kb is 1.0.
         Real kb = root.get("kb", 1.0).asDouble();
 
         // Put the output name into the variable 'out'.
@@ -371,7 +371,7 @@ namespace STARTER{
         std::string initialstate = root.get("initialstate", "").asString();
         if (root.isMember("initialstate") == false)
         {
-            system_.randomizeSpins(temps[0]);
+            system_.randomizeSpins();
         }
         else
         {

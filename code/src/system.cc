@@ -54,6 +54,8 @@ System::System(std::string fileName,
     this -> engine_.seed(seed);
     this -> seed_ = seed;
 
+    this -> sigma_ = 60.0;
+    this -> counterRejections_ = 0;
 
     for (auto&& element : this -> lattice_.getMapTypes())
     {
@@ -122,20 +124,19 @@ Real System::totalEnergy(Real H)
     return 0.5 * exchange_energy + other_energy;
 }
 
-void System::randomizeSpins(Real T)
+void System::randomizeSpins()
 {
     for (auto&& atom : this -> lattice_.getAtoms())
-        atom.randomizeSpin(
-            this -> engine_,
+        atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            T, atom);
+            this -> sigma_, atom, 0);
 }
 
 
 void System::monteCarloStep(Real T, Real H)
 {
-    
+    Index num = Index(this -> realRandomGenerator_(this -> engine_) * 3);
     for (Index _ = 0; _ < this -> lattice_.getAtoms().size(); ++_)
     {
         Index randIndex = this -> intRandomGenerator_(this -> engine_);
@@ -144,12 +145,15 @@ void System::monteCarloStep(Real T, Real H)
         atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            T, atom);
+            this -> sigma_, atom, num);
         Real newEnergy = this -> localEnergy(atom, H);
         Real deltaEnergy = newEnergy - oldEnergy;
 
         if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (this -> kb_ * T)))
+        {
             atom.revertSpin();
+            this -> counterRejections_ += 1;
+        }
     }
 }
 
@@ -181,9 +185,20 @@ void System::cycle()
             item.second.clear();
         }
         
+        double rejection = 0.0;
         for (Index _ = 0; _ < this -> mcs_; ++_)
         {
             this -> monteCarloStep(T, H);
+            rejection = (this -> counterRejections_) / Real(this -> lattice_.getAtoms().size());
+
+            this -> sigma_ = this -> sigma_ * (0.5 / rejection);
+            if (this -> sigma_ > 60.0 || this -> sigma_ < 1e-10)
+            {
+                this -> sigma_ = 60.0;
+            }
+
+            this -> counterRejections_ = 0;
+
             enes.push_back(this -> totalEnergy(H));
             
             this -> ComputeMagnetization();

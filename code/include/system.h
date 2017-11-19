@@ -27,8 +27,7 @@ public:
 
     Real totalEnergy(Real H);
     
-    void randomizeSpins(Real T);
-    Array randomUnitArray();
+    void randomizeSpins();
     
     void monteCarloStep(Real T, Real H);
 
@@ -63,6 +62,14 @@ private:
     std::normal_distribution<> gaussianRandomGenerator_;
 
     Reporter reporter_;
+
+    Index counterRejections_;
+
+    Real sigma_;
+    Real sigmaMax_;
+    Real sigmaMin_;
+
+    Real cut_;
 };
 
 #endif

@@ -14,4 +14,8 @@ WORKDIR /vegas/build
 
 RUN cmake ../compilers/linux && make && make install
 RUN cp ../vegas-analyzer-heisenberg.py /opt/
+RUN cp ../vegas-analyzer-lite.py /opt/
+RUN cp ../vegas-analyzer-xyz.py /opt/
 RUN mv ../vegas-analyzer-heisenberg.py .
+RUN mv ../vegas-analyzer-lite.py .
+RUN mv ../vegas-analyzer-xyz.py .

@@ -7,7 +7,7 @@ Reporter::Reporter()
 }
 
 Reporter::Reporter(std::string filename,
-             std::map<std::string, Array> magnetizationTypes,
+             std::vector<Array> magnetizationTypes,
              Lattice& lattice,
              const std::vector<Real>& temps,
              const std::vector<Real>& fields,
@@ -27,20 +27,40 @@ Reporter::Reporter(std::string filename,
     this -> status = H5Pset_deflate(dcpl, 1);
     this -> status = H5Pset_chunk(dcpl, 2, CHUNK);
 
-    for (auto&& mt : magnetizationTypes)
+    Index num_types = lattice.getMapTypeIndexes().size();
+    this -> mags_dset_x_ = std::vector<hid_t>(num_types + 1);
+    this -> dataspace_id_mag_x_ = std::vector<hid_t>(num_types + 1);
+    this -> mags_dset_y_ = std::vector<hid_t>(num_types + 1);
+    this -> dataspace_id_mag_y_ = std::vector<hid_t>(num_types + 1);
+    this -> mags_dset_z_ = std::vector<hid_t>(num_types + 1);
+    this -> dataspace_id_mag_z_ = std::vector<hid_t>(num_types + 1);
+    
+    for (auto& type : lattice.getMapTypeIndexes())
     {
-        this -> mags_dset[mt.first + "_x"] = H5Dcreate(file, (mt.first + "_x").c_str(),
+        this -> mags_dset_x_.at(type.second) = H5Dcreate(file, (type.first + "_x").c_str(),
                     H5T_IEEE_F64LE, space, H5P_DEFAULT,
                     dcpl, H5P_DEFAULT);
 
-        this -> mags_dset[mt.first + "_y"] = H5Dcreate(file, (mt.first + "_y").c_str(),
+        this -> mags_dset_y_.at(type.second) = H5Dcreate(file, (type.first + "_y").c_str(),
                     H5T_IEEE_F64LE, space, H5P_DEFAULT,
                     dcpl, H5P_DEFAULT);
 
-        this -> mags_dset[mt.first + "_z"] = H5Dcreate(file, (mt.first + "_z").c_str(),
+        this -> mags_dset_z_.at(type.second) = H5Dcreate(file, (type.first + "_z").c_str(),
                     H5T_IEEE_F64LE, space, H5P_DEFAULT,
                     dcpl, H5P_DEFAULT);
     }
+
+    this -> mags_dset_x_.at(num_types) = H5Dcreate(file, "magnetization_x",
+                H5T_IEEE_F64LE, space, H5P_DEFAULT,
+                dcpl, H5P_DEFAULT);
+
+    this -> mags_dset_y_.at(num_types) = H5Dcreate(file, "magnetization_y",
+                H5T_IEEE_F64LE, space, H5P_DEFAULT,
+                dcpl, H5P_DEFAULT);
+
+    this -> mags_dset_z_.at(num_types) = H5Dcreate(file, "magnetization_z",
+                H5T_IEEE_F64LE, space, H5P_DEFAULT,
+                dcpl, H5P_DEFAULT);
 
     this -> energies_dset = H5Dcreate(file, "energy",
                 H5T_IEEE_F64LE, space, H5P_DEFAULT,
@@ -87,7 +107,7 @@ Reporter::Reporter(std::string filename,
     double positions[lattice.getAtoms().size()][3];
     const char *types[lattice.getAtoms().size()];
     int i = 0;
-    for(auto&& atom : lattice.getAtoms())
+    for(auto& atom : lattice.getAtoms())
     {
         std::copy(std::begin(atom.getPosition()), std::end(atom.getPosition()), positions[i]);
         types[i] = atom.getType().c_str();
@@ -115,11 +135,12 @@ Reporter::Reporter(std::string filename,
     this -> block_[1] = 1;
 
 
-    for (auto&& mt : this -> mags_dset)
+    for (Index i = 0; i <= num_types; ++i)
     {
-        this -> dataspace_id_mag[mt.first] = H5Dget_space(mt.second);
+        this -> dataspace_id_mag_x_.at(i) = H5Dget_space(mags_dset_x_.at(i));
+        this -> dataspace_id_mag_y_.at(i) = H5Dget_space(mags_dset_y_.at(i));
+        this -> dataspace_id_mag_z_.at(i) = H5Dget_space(mags_dset_z_.at(i));
     }
-
 
 
     this -> dims_select_finalstates[0] = 3;
@@ -160,8 +181,12 @@ Reporter::Reporter(std::string filename,
 }
 
 
-void Reporter::partial_report(const std::vector<Real>& enes, const std::map<std::string, std::vector<Real> >& histMag,
-                              Lattice& lattice, Index index)
+void Reporter::partial_report(
+    const std::vector<Real>& enes,
+    const std::vector< std::vector<Real> >& histMag_x,
+    const std::vector< std::vector<Real> >& histMag_y,
+    const std::vector< std::vector<Real> >& histMag_z,
+    Lattice& lattice, Index index)
 {
     this -> start_[0] = index;
 
@@ -171,19 +196,30 @@ void Reporter::partial_report(const std::vector<Real>& enes, const std::map<std:
     this -> status = H5Dwrite (this -> energies_dset, H5T_NATIVE_DOUBLE, this -> memspace_id_,
                        this -> dataspace_id_energy, H5P_DEFAULT, enes.data());
 
-
-    for (auto&& item : this -> mags_dset)
+    Index i = 0;
+    for (auto& val : this -> mags_dset_x_)
     {
-        this -> status = H5Sselect_hyperslab(this -> dataspace_id_mag[item.first], H5S_SELECT_SET, this -> start_,
+        this -> status = H5Sselect_hyperslab(this -> dataspace_id_mag_x_.at(i), H5S_SELECT_SET, this -> start_,
                                       this -> stride_, this -> count_, this -> block_);
-        this -> status = H5Dwrite (item.second, H5T_NATIVE_DOUBLE, this -> memspace_id_,
-                                   this -> dataspace_id_mag[item.first], H5P_DEFAULT, histMag.at(item.first).data());
+        this -> status = H5Dwrite (val, H5T_NATIVE_DOUBLE, this -> memspace_id_,
+                                   this -> dataspace_id_mag_x_.at(i), H5P_DEFAULT, histMag_x.at(i).data());
+
+        this -> status = H5Sselect_hyperslab(this -> dataspace_id_mag_y_.at(i), H5S_SELECT_SET, this -> start_,
+                                      this -> stride_, this -> count_, this -> block_);
+        this -> status = H5Dwrite (mags_dset_y_.at(i), H5T_NATIVE_DOUBLE, this -> memspace_id_,
+                                   this -> dataspace_id_mag_y_.at(i), H5P_DEFAULT, histMag_y.at(i).data());
+
+        this -> status = H5Sselect_hyperslab(this -> dataspace_id_mag_z_.at(i), H5S_SELECT_SET, this -> start_,
+                                      this -> stride_, this -> count_, this -> block_);
+        this -> status = H5Dwrite (mags_dset_z_.at(i), H5T_NATIVE_DOUBLE, this -> memspace_id_,
+                                   this -> dataspace_id_mag_z_.at(i), H5P_DEFAULT, histMag_z.at(i).data());
+        i++;
     }
 
 
     this -> start_finalstates[0] = index;
-    Index i = 0;
-    for(auto&& atom : lattice.getAtoms())
+    i = 0;
+    for(auto& atom : lattice.getAtoms())
     {
         this -> start_finalstates[1] = i;
         std::vector<double> spin;
@@ -201,9 +237,13 @@ void Reporter::partial_report(const std::vector<Real>& enes, const std::map<std:
 
 void Reporter::close()
 {
-    for (auto&& mt : this -> mags_dset)
+    Index i = 0;
+    for (auto& val : this -> mags_dset_x_)
     {
-        this -> status = H5Dclose(mt.second);
+        this -> status = H5Dclose(val);
+        this -> status = H5Dclose(mags_dset_y_.at(i));
+        this -> status = H5Dclose(mags_dset_z_.at(i));
+        i++;
     }
 
     this -> status = H5Dclose(this -> energies_dset);

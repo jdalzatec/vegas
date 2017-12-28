@@ -3,7 +3,6 @@
 
 #include <random>
 #include <cmath>
-#include <map>
 #include "lattice.h"
 #include "reporter.h"
 
@@ -54,7 +53,7 @@ private:
     std::vector<Real> fields_;
     std::string outName_;
 
-    std::map<std::string, Array> magnetizationType_;
+    std::vector<Array> magnetizationByTypeIndex_;
 
     std::mt19937_64 engine_;
     std::uniform_real_distribution<> realRandomGenerator_;
@@ -63,13 +62,10 @@ private:
 
     Reporter reporter_;
 
-    Index counterRejections_;
+    std::vector<Real> sigma_;
+    std::vector<Index> counterRejections_;
 
-    Real sigma_;
-    Real sigmaMax_;
-    Real sigmaMin_;
-
-    Real cut_;
+    Index num_types_;
 };
 
 #endif

@@ -139,9 +139,9 @@ namespace STARTER{
         std::cout << "\t\tNum Ions = \n\t\t\t" << system_.getLattice().getAtoms().size() << std::endl;
         
         // The amount of ions are printed for type ion.
-        for (auto&& type : system_.getLattice().getMapTypes())
+        for (auto&& type : system_.getLattice().getMapTypeIndexes())
         {
-            std::cout << "\t\tNum " << type.first << " Ions  = \n\t\t\t" << type.second << std::endl;
+            std::cout << "\t\tNum " << type.first << " Ions  = \n\t\t\t" << system_.getLattice().getSizesByIndex().at(type.second) << std::endl;
         }
 
         std::cout << "\t\tkb = \n\t\t\t" << kb << std::endl;
@@ -149,6 +149,7 @@ namespace STARTER{
 
         std::cout << std::endl;
         std::cout << std::endl;
+
     }
 
 

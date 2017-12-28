@@ -46,7 +46,6 @@ int main(int argc, char const *argv[])
     if (help == "--help" or help == "-help")
         HELP();
 
-
     // The second argument is to know if the values should be printed.
     System system_ = CREATE_SYSTEM(argv[1], true);
 

@@ -27,6 +27,7 @@ public:
     const Real& getKan() const;
     const Array& getExternalField() const;
     const Index& getSproj() const;
+    const Index& getTypeIndex() const;
 
     const std::vector<double>& getProjections() const;
     const std::vector<double>& getPossibleProjections() const;
@@ -43,6 +44,7 @@ public:
     void setOldSpin(const Array& oldSpin);
     void setExternalField(const Array& externalField);
     void setSproj(const Index& Sproj);
+    void setTypeIndex(const Index& typeIndex);
 
     void addNbh(Atom* nbh);
     void addExchange(Real exchange);
@@ -75,6 +77,7 @@ private:
     Array externalField_;
 
     std::string type_;
+    Index typeIndex_;
     std::vector<Real> exchanges_;
     std::vector<double> projections_;
     std::vector<double> possibleProjections_;

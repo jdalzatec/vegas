@@ -15,13 +15,15 @@ public:
 
     std::vector<Atom>& getAtoms();
 
-    const std::map<std::string, Index>& getMapTypes() const;
-    const std::map<std::string, Index>& getNumType() const;
+    const std::map<std::string, Index>& getMapTypeIndexes() const;
+    const std::map<Index, std::string>& getMapIndexTypes() const;
+    const std::vector<Index>& getSizesByIndex() const;
 
 private:
     std::vector<Atom> atoms_;
-    std::map<std::string, Index> mapTypes_;
-    std::map<std::string, Index> numType_;
+    std::map<std::string, Index> mapTypeIndexes_;
+    std::map<Index, std::string> mapIndexTypes_;
+    std::vector<Index> sizesByIndex_;
 
 };
 

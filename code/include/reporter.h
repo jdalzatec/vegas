@@ -14,7 +14,7 @@ class Reporter
 public:
     Reporter();
     Reporter(std::string filename,
-             std::map<std::string, Array> magnetizationTypes,
+             std::vector<Array> magnetizationTypes,
              Lattice& lattice,
              const std::vector<Real>& temps,
              const std::vector<Real>& fields,
@@ -22,7 +22,12 @@ public:
              Index seed,
              Real kb);
 
-    void partial_report(const std::vector<Real>& enes, const std::map<std::string, std::vector<Real> >& histMag, Lattice& lattice, Index index);
+    void partial_report(
+        const std::vector<Real>& enes,
+        const std::vector< std::vector<Real> >& histMag_x,
+        const std::vector< std::vector<Real> >& histMag_y,
+        const std::vector< std::vector<Real> >& histMag_z,
+        Lattice& lattice, Index index);
     void close();
     ~Reporter();
     
@@ -32,8 +37,15 @@ private:
     hid_t       memspace_id_mag;
     herr_t      status;
     
-    std::map<std::string, hid_t> mags_dset;
-    std::map<std::string, hid_t> dataspace_id_mag;
+    std::vector<hid_t> mags_dset_x_;
+    std::vector<hid_t> dataspace_id_mag_x_;
+    
+    std::vector<hid_t> mags_dset_y_;
+    std::vector<hid_t> dataspace_id_mag_y_;
+    
+    std::vector<hid_t> mags_dset_z_;
+    std::vector<hid_t> dataspace_id_mag_z_;
+    
     hid_t energies_dset;
     hid_t temps_dset;
     hid_t fields_dset;

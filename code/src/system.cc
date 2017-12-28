@@ -51,23 +51,27 @@ System::System(std::string fileName,
     this -> gaussianRandomGenerator_ = std::normal_distribution<>(0.0, 1.0);
     this -> outName_ = outName;
 
+    this -> num_types_ = this -> lattice_.getMapTypeIndexes().size();
+
     this -> engine_.seed(seed);
     this -> seed_ = seed;
 
-    this -> sigma_ = 60.0;
-    this -> counterRejections_ = 0;
-
-    for (auto&& element : this -> lattice_.getMapTypes())
+    this -> sigma_ = std::vector<Real>(this -> num_types_);
+    this -> counterRejections_ = std::vector<Index>(this -> num_types_);
+    this -> magnetizationByTypeIndex_ = std::vector<Array>(this -> num_types_ + 1);
+    for (Index i = 0; i < this -> sigma_.size(); ++i)
     {
-        this -> magnetizationType_[element.first] = ZERO;
+        this -> sigma_.at(i) = 60.0;
+        this -> counterRejections_.at(i) = 0;
+        this -> magnetizationByTypeIndex_.at(i) = ZERO;
     }
+    this -> magnetizationByTypeIndex_.at(this -> num_types_) = ZERO; // for total magnetization
 
-    this -> magnetizationType_["magnetization"] = ZERO;
     std::remove(outName.c_str());
 
 
     this -> reporter_ = Reporter(this -> outName_,
-                                 this -> magnetizationType_,
+                                 this -> magnetizationByTypeIndex_,
                                  this -> lattice_,
                                  this -> temps_,
                                  this -> fields_,
@@ -83,17 +87,14 @@ System::~System()
 
 void System::ComputeMagnetization()
 {
-    Array mag = ZERO;
-    for (auto&& mt : this -> magnetizationType_)
-        mt.second = ZERO;
+    for (auto& val : this -> magnetizationByTypeIndex_)
+        val = 0.0;
 
-    for (auto&& atom : this -> lattice_.getAtoms())
+    for (auto& atom : this -> lattice_.getAtoms())
     {
-        this -> magnetizationType_.at(atom.getType()) += atom.getSpin();
-        mag += atom.getSpin();
+        this -> magnetizationByTypeIndex_.at(atom.getTypeIndex()) += atom.getSpin();
+        this -> magnetizationByTypeIndex_.at(this -> num_types_) += atom.getSpin();
     }
-
-    this -> magnetizationType_.at("magnetization") = mag;
 }
 
 Real System::localEnergy(Index index, Real H)
@@ -115,7 +116,7 @@ Real System::totalEnergy(Real H)
 {
     Real exchange_energy = 0.0;
     Real other_energy = 0.0;
-    for (auto&& atom : this -> lattice_.getAtoms())
+    for (auto& atom : this -> lattice_.getAtoms())
     {
         exchange_energy += atom.getExchangeEnergy();
         other_energy += atom.getAnisotropyEnergy(atom);
@@ -126,11 +127,11 @@ Real System::totalEnergy(Real H)
 
 void System::randomizeSpins()
 {
-    for (auto&& atom : this -> lattice_.getAtoms())
+    for (auto& atom : this -> lattice_.getAtoms())
         atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            this -> sigma_, atom, 0);
+            this -> sigma_.at(atom.getTypeIndex()), atom, 0);
 }
 
 
@@ -145,14 +146,14 @@ void System::monteCarloStep(Real T, Real H)
         atom.randomizeSpin(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            this -> sigma_, atom, num);
+            this -> sigma_.at(atom.getTypeIndex()), atom, num);
         Real newEnergy = this -> localEnergy(atom, H);
         Real deltaEnergy = newEnergy - oldEnergy;
 
         if (deltaEnergy > 0 && this -> realRandomGenerator_(this -> engine_) > std::exp(- deltaEnergy / (this -> kb_ * T)))
         {
             atom.revertSpin();
-            this -> counterRejections_ += 1;
+            this -> counterRejections_.at(atom.getTypeIndex()) += 1;
         }
     }
 }
@@ -160,12 +161,15 @@ void System::monteCarloStep(Real T, Real H)
 void System::cycle()
 {
 
-    std::map<std::string, std::vector<Real> > histMag;
-    for (auto&& item : this -> magnetizationType_)
+    std::vector< std::vector<Real> > histMag_x(this -> num_types_ + 1);
+    std::vector< std::vector<Real> > histMag_y(this -> num_types_ + 1);
+    std::vector< std::vector<Real> > histMag_z(this -> num_types_ + 1);
+
+    for (Index i = 0; i <= this -> num_types_; ++i)
     {
-        histMag[item.first + "_x"] = std::vector<Real>(0);
-        histMag[item.first + "_y"] = std::vector<Real>(0);
-        histMag[item.first + "_z"] = std::vector<Real>(0);
+        histMag_x.at(i) = std::vector<Real>(0);
+        histMag_y.at(i) = std::vector<Real>(0);
+        histMag_z.at(i) = std::vector<Real>(0);
     }
 
     Index initial_time = 0;
@@ -180,39 +184,50 @@ void System::cycle()
         Real H = this -> fields_.at(index);
         std::vector<Real> enes;
 
-        for (auto&& item : histMag)
+        for (Index i = 0; i <= this -> num_types_; ++i)
         {
-            item.second.clear();
+            histMag_x.at(i).clear();
+            histMag_y.at(i).clear();
+            histMag_z.at(i).clear();
         }
         
-        double rejection = 0.0;
+        Real rejection;
+        Real sigma_temp;
         for (Index _ = 0; _ < this -> mcs_; ++_)
         {
             this -> monteCarloStep(T, H);
-            rejection = (this -> counterRejections_) / Real(this -> lattice_.getAtoms().size());
-
-            this -> sigma_ = this -> sigma_ * (0.5 / rejection);
-            if (this -> sigma_ > 60.0 || this -> sigma_ < 1e-10)
-            {
-                this -> sigma_ = 60.0;
-            }
-
-            this -> counterRejections_ = 0;
-
             enes.push_back(this -> totalEnergy(H));
-            
             this -> ComputeMagnetization();
-            auto mag = this -> magnetizationType_.at("magnetization");
-                
-            for (auto&& item : this -> magnetizationType_)
+            // auto mag = this -> magnetizationType_.at("magnetization");
+            
+            
+            Index i = 0;
+            for (auto& val : this -> counterRejections_)
             {
-                histMag[item.first + "_x"].push_back(item.second[0]);
-                histMag[item.first + "_y"].push_back(item.second[1]);
-                histMag[item.first + "_z"].push_back(item.second[2]);
+                rejection = val / Real(this -> lattice_.getSizesByIndex().at(i));
+                sigma_temp = this -> sigma_.at(i) * (0.5 / rejection);
+                if (sigma_temp > 60.0 || sigma_temp < 1e-10)
+                {
+                    sigma_temp = 60.0;
+                }
+                this -> sigma_.at(i) = sigma_temp;
+                this -> counterRejections_.at(i) = 0;
+
+
+                histMag_x.at(i).push_back(this -> magnetizationByTypeIndex_.at(i)[0]);
+                histMag_y.at(i).push_back(this -> magnetizationByTypeIndex_.at(i)[1]);
+                histMag_z.at(i).push_back(this -> magnetizationByTypeIndex_.at(i)[2]);
+                i++;
             }
 
+            histMag_x.at(this -> num_types_).push_back(this -> magnetizationByTypeIndex_.at(this -> num_types_)[0]);
+            histMag_y.at(this -> num_types_).push_back(this -> magnetizationByTypeIndex_.at(this -> num_types_)[1]);
+            histMag_z.at(this -> num_types_).push_back(this -> magnetizationByTypeIndex_.at(this -> num_types_)[2]);
+
+
+            
         }
-        this -> reporter_.partial_report(enes, histMag, this -> lattice_, index);
+        this -> reporter_.partial_report(enes, histMag_x, histMag_y, histMag_z, this -> lattice_, index);
 
 
         final_time = time(NULL);
@@ -228,7 +243,16 @@ void System::cycle()
                   << 100.0 * (index + 1) / (this -> temps_.size()) 
                   << "%)";
         rlutil::resetColor();
-        std::cout << "\t==>\tT = " << T << "; H = " << H << std::endl;
+        // std::cout << "\t==>\tT = " << T << "; H = " << H << std::endl;
+        std::cout << "\t==>\tT = " << T << "; H = " << H << " ";
+        Index i = 0;
+        for (auto& element : this -> lattice_.getMapTypeIndexes())
+        {
+            std::cout << element.first << " " << this -> sigma_.at(i) << " ";
+            i++;
+        }
+        std::cout << std::endl;
+
     }
 
     this -> reporter_.close();
@@ -245,11 +269,6 @@ Index System::getSeed() const
     return this -> seed_;
 }
 
-const std::map<std::string, Array>& System::getMagnetizationType() const
-{
-    return this -> magnetizationType_;
-}
-
 void System::setState(std::string fileState)
 {
     std::ifstream file(fileState);
@@ -258,7 +277,7 @@ void System::setState(std::string fileState)
     std::string sx;
     std::string sy;
     std::string sz;
-    for (auto&& atom : this -> lattice_.getAtoms())
+    for (auto& atom : this -> lattice_.getAtoms())
     {
         file >> sx >> sy >> sz;
         Array spin({atof(sx.c_str()), atof(sy.c_str()), atof(sz.c_str())});
@@ -271,7 +290,7 @@ void System::setState(std::string fileState)
 
 void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
 {
-    for (auto&& fileName : anisotropyfiles)
+    for (auto& fileName : anisotropyfiles)
     {
         std::ifstream file(fileName);
         for (Index i = 0; i < this -> lattice_.getAtoms().size(); ++i)
@@ -324,9 +343,6 @@ void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
             {
                 EXIT("The anisotropy file with name " + fileName + " does not have the correct format !!!");
             }
-
-        }
-        
+        }   
     }
-
 }

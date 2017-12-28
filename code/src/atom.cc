@@ -445,4 +445,14 @@ void Atom::addAnisotropyTerm(const std::function<Real(const Atom&)>& func)
     this -> anisotropyTerms_.push_back(func);
 }
 
+const Index& Atom::getTypeIndex() const
+{
+    return this -> typeIndex_;
+}
+
+void Atom::setTypeIndex(const Index& typeIndex)
+{
+    this -> typeIndex_ = typeIndex;
+}
+
 

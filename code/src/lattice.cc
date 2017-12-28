@@ -16,12 +16,16 @@ Lattice::Lattice(std::string fileName)
 
     file >> num_ions >> num_interactions >> num_types;
 
-    for (Index _ = 0; _ < num_types; ++_)
+    for (Index i = 0; i < num_types; ++i)
     {
-        std::string general_type;
-        file >> general_type;
-        this -> mapTypes_[general_type] = 0;
+        std::string type;
+        file >> type;
+        this -> mapTypeIndexes_[type] = i;
+        this -> mapIndexTypes_[i] = type;
     }
+
+    this -> sizesByIndex_ = std::vector<Index>(num_types);
+
     this -> atoms_ = std::vector<Atom>(num_ions);
     Real px;
     Real py;
@@ -47,10 +51,12 @@ Lattice::Lattice(std::string fileName)
         atom.setType(type);
         atom.setExternalField({hx, hy, hz});
         atom.setModel(model);
+        atom.setTypeIndex(this -> mapTypeIndexes_.at(type));
 
         this -> atoms_.at(index) = atom;
 
-        this -> mapTypes_.at(type) += 1;
+
+        this -> sizesByIndex_.at(this -> mapTypeIndexes_.at(type)) += 1;
     }
 
     Index index;
@@ -75,7 +81,17 @@ std::vector<Atom>& Lattice::getAtoms()
     return this -> atoms_;
 }
 
-const std::map<std::string, Index>& Lattice::getMapTypes() const
+const std::map<std::string, Index>& Lattice::getMapTypeIndexes() const
 {
-    return this -> mapTypes_;
+    return this -> mapTypeIndexes_;
+}
+
+const std::map<Index, std::string>& Lattice::getMapIndexTypes() const
+{
+    return this -> mapIndexTypes_;
+}
+
+const std::vector<Index>& Lattice::getSizesByIndex() const
+{
+    return this -> sizesByIndex_;
 }

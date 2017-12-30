@@ -10,12 +10,12 @@ main: main.o atom.o lattice.o system.o reporter.o
 			  ./compilers/lattice.o \
 			  ./compilers/system.o \
 			  ./compilers/reporter.o \
-			  ./code/include/hdf5/lib/libhdf5_cpp.a \
 			  ./code/include/hdf5/lib/libhdf5.a \
-			  ./code/include/hdf5/lib/libhdf5_hl.a \
+			  ./code/include/hdf5/lib/libhdf5_cpp.a \
 			  ./code/include/hdf5/lib/libhdf5_hl_cpp.a \
+			  ./code/include/hdf5/lib/libhdf5_hl.a \
 			  ./code/include/jsoncpp/lib/libjsoncpp.a \
-			  -ldl -static \
+			  -ldl -lz -static -static-libstdc++ -static-libgcc -lc \
 			  -o vegas $(EFLAGS)
 
 main.o:

@@ -24,3 +24,8 @@ a.out
 *.zip
 *.gz
 *.rar
+
+code/include/hdf5
+code/include/jsoncpp
+
+compilers/linux/build

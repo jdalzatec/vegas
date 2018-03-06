@@ -281,8 +281,14 @@ void System::setState(std::string fileState)
     {
         file >> sx >> sy >> sz;
         Array spin({atof(sx.c_str()), atof(sy.c_str()), atof(sz.c_str())});
-        if (std::sqrt((spin*spin).sum()) != atom.getSpinNorm())
+        Real norm = std::round(std::sqrt((spin*spin).sum()) * 10000) / 10000;
+        if (norm != atom.getSpinNorm())
+        {
+            std::cout << norm << " " << atom.getSpinNorm() << " "
+                      << (norm == atom.getSpinNorm()) << " " << spin
+                      << std::endl;
             EXIT("The spin norm of the site " + std::to_string(atom.getIndex()) + " does not match with the initial state given !!!");
+        }
 
         atom.setSpin(spin);
     }

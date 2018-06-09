@@ -137,7 +137,7 @@ void System::randomizeSpins()
 
 void System::monteCarloStep(Real T, Real H)
 {
-    Index num = Index(this -> realRandomGenerator_(this -> engine_) * 3);
+    Index num = Index(this -> realRandomGenerator_(this -> engine_) * 5);
     for (Index _ = 0; _ < this -> lattice_.getAtoms().size(); ++_)
     {
         Index randIndex = this -> intRandomGenerator_(this -> engine_);

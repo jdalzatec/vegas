@@ -329,13 +329,13 @@ void Atom::setModel(const std::string& model)
                 Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
                 atom.setSpin(Sp);
             }
-            else if (num == 1)
+            else if (num == 1 || num == 2 || num == 3)
             {
                 Array gamma({gaussianRandomGenerator(engine), gaussianRandomGenerator(engine), gaussianRandomGenerator(engine)});
                 Array unitArray = gamma / std::sqrt((gamma * gamma).sum());
                 atom.setSpin( atom.getSpinNorm() * unitArray);
             }
-            else if (num == 2)
+            else if (num == 4)
             {
                 atom.setSpin(  - atom.getSpin());
             }
@@ -377,13 +377,13 @@ void Atom::setModel(const std::string& model)
                 Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
                 atom.setSpin(Sp);
             }
-            else if (num == 1)
+            else if (num == 1 || num == 2 || num == 3)
             {
                 Array gamma({gaussianRandomGenerator(engine), gaussianRandomGenerator(engine), gaussianRandomGenerator(engine)});
                 Array unitArray = gamma / std::sqrt((gamma * gamma).sum());
                 atom.setSpin( atom.getSpinNorm() * unitArray);
             }
-            else if (num == 2)
+            else if (num == 4)
             {
                 atom.setSpin(  - atom.getSpin());
             }

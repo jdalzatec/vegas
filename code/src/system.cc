@@ -30,7 +30,7 @@ std::vector<std::string> split(const std::string& s, char delim)
 
 const std::string ETA_seconds(const Index& seconds)
 {
-    return "ETA: " + std::to_string(int(seconds / 3600)) + ":"
+    return "ETR: " + std::to_string(int(seconds / 3600)) + ":"
                    + std::to_string(int((seconds % 3600) / 60)) + ":"
                    + (((seconds % 60)< 10)? "0":"") + std::to_string(seconds % 60);
 }

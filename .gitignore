@@ -29,3 +29,7 @@ code/include/hdf5
 code/include/jsoncpp
 
 compilers/linux/build
+
+config.h
+
+*.o

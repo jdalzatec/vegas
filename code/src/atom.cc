@@ -389,6 +389,52 @@ void Atom::setModel(const std::string& model)
             }
         };
     }
+
+
+
+    if (model == "random" || model == "adaptive" || model == "cone15" || model == "cone30" || model == "hn15" || model == "hn30")
+    {
+        this -> randomInitialState = [](
+            std::mt19937_64& engine,
+            std::uniform_real_distribution<>& realRandomGenerator,
+            std::normal_distribution<>& gaussianRandomGenerator,
+            Atom& atom)
+        {
+            atom.setOldSpin(atom.getSpin());
+            Array gamma({gaussianRandomGenerator(engine), gaussianRandomGenerator(engine), gaussianRandomGenerator(engine)});
+            Array unitArray = gamma / std::sqrt((gamma * gamma).sum());
+            atom.setSpin( atom.getSpinNorm() * unitArray);
+        };
+    }
+    else if (model == "flip")
+    {
+        this -> randomInitialState = [](
+            std::mt19937_64& engine,
+            std::uniform_real_distribution<>& realRandomGenerator,
+            std::normal_distribution<>& gaussianRandomGenerator,
+            Atom& atom)
+        {
+            atom.setOldSpin(atom.getSpin());
+            if (realRandomGenerator(engine) < 0.5)
+                atom.setSpin( {0.0, 0.0, -atom.getSpinNorm()} );
+            else
+                atom.setSpin( {0.0, 0.0, atom.getSpinNorm()} );
+        };
+    }
+    else if (model == "qising")
+    {
+        this -> randomInitialState = [](
+            std::mt19937_64& engine,
+            std::uniform_real_distribution<>& realRandomGenerator,
+            std::normal_distribution<>& gaussianRandomGenerator,
+            Atom& atom)
+        {
+            atom.setOldSpin(atom.getSpin());
+            atom.setSproj(int(realRandomGenerator(engine) * atom.getPossibleProjections().size()));
+            atom.setSpin({0.0, 0.0, atom.getPossibleProjections()[atom.getSproj()]});
+            atom.changeProjection(atom.getSproj(), atom.getOldSpin()[2]);
+        };
+    }
 }
 
 Real Atom::getExchangeEnergy() const

@@ -128,10 +128,10 @@ Real System::totalEnergy(Real H)
 void System::randomizeSpins()
 {
     for (auto& atom : this -> lattice_.getAtoms())
-        atom.randomizeSpin(this -> engine_,
+        atom.randomInitialState(this -> engine_,
             this -> realRandomGenerator_,
             this -> gaussianRandomGenerator_,
-            this -> sigma_.at(atom.getTypeIndex()), atom, 0);
+            atom);
 }
 
 

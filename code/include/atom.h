@@ -63,6 +63,13 @@ public:
         std::normal_distribution<>& gaussianRandomGenerator,
         Real sigma_, Atom& atom, Index num)> randomizeSpin;
 
+
+    std::function<void(
+        std::mt19937_64& engine,
+        std::uniform_real_distribution<>& realRandomGenerator,
+        std::normal_distribution<>& gaussianRandomGenerator,
+        Atom& atom)> randomInitialState;
+
     void revertSpin();
 
 

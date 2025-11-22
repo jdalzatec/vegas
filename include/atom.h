@@ -1,10 +1,11 @@
-#ifndef ATOM
-#define ATOM
+#ifndef ATOM_H
+#define ATOM_H
+
+#include "params.h"
 
 #include <string>
 #include <functional>
 #include <random>
-#include "params.h"
 
 class Atom
 {
@@ -35,7 +36,7 @@ public:
     const std::string& getModel() const;
     void setModel(const std::string& model);
 
-    
+
     void setPosition(const Array& position);
     void setNbhs(const std::vector<Atom*>& nbhs);
     void setExchanges(const std::vector<Real>& exchanges);
@@ -48,7 +49,7 @@ public:
 
     void addNbh(Atom* nbh);
     void addExchange(Real exchange);
-    
+
     void changeProjection(Index i, Real value);
     void removePossibleProjection(Index i);
 
@@ -88,7 +89,7 @@ private:
     std::vector<Real> exchanges_;
     std::vector<double> projections_;
     std::vector<double> possibleProjections_;
-    
+
     std::string model_;
 
     Index Sproj_;
@@ -96,5 +97,4 @@ private:
     std::vector< std::function<Real(const Atom&)> > anisotropyTerms_;
 };
 
-
-#endif
+#endif // ATOM_H

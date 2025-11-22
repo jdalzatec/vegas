@@ -1,11 +1,11 @@
+#include "../include/system.h"
+#include "../include/rlutil.h"
+#include "../include/starter.h"
+
 #include <iostream>
 #include <string>
-#include "include/system.h"
 
 // Library to manage the console colors
-#include "include/rlutil.h"
-
-#include "include/starter.h"
 
 
 // Many functions for checking, errors and read the information were

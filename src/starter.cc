@@ -1,17 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <tuple>
-#include "params.h"
-#include "system.h"
+#include "../include/starter.h"
 
-#include "json/json.h"
-
-// Library to manage the console colors
-#include "rlutil.h"
-
-namespace STARTER{
-    // Message to exit and launch an error.
+namespace STARTER {
     void EXIT(std::string message)
     {
         rlutil::setColor(rlutil::LIGHTRED);
@@ -21,7 +10,6 @@ namespace STARTER{
         exit(EXIT_FAILURE);
     }
 
-    // Function to check some regular issues
     void CHECK(std::string sample,
                Index mcs,
                const std::vector<Real>& temps,
@@ -40,19 +28,13 @@ namespace STARTER{
                 temps.size()) + " != " + std::to_string(fields.size()) + " )!!!");
     }
 
-    // Fn case that the initial state is given,
-    // this function checks if the file exists.
     void CHECKFILE(std::string filename)
     {
         std::ifstream infile(filename);
         if (!infile.good())
             EXIT("The initial state file can't open or doesn't exist !!!");
-
     }
 
-
-
-    // Function to print the header
     void HEADER()
     {
         rlutil::saveDefaultColor();
@@ -113,7 +95,6 @@ namespace STARTER{
         rlutil::resetColor();
     }
 
-
     void PRINT_VALUES(System& system_,
                       const std::string& sample,
                       const Index& mcs,
@@ -153,7 +134,6 @@ namespace STARTER{
         std::cout << std::endl;
 
     }
-
 
     System CREATE_SYSTEM(std::string jsonfile, bool print)
     {
@@ -410,4 +390,4 @@ namespace STARTER{
 
         return system_;
     }
-}
+};

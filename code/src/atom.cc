@@ -1,6 +1,4 @@
-#include "atom.h"
-#include <stdexcept>
-#include "rlutil.h"
+#include "../include/atom.h"
 
 Real dot(const Array& A, const Array& B)
 {
@@ -254,7 +252,7 @@ void Atom::setModel(const std::string& model)
             Real zn = std::cos(theta_new);
             Array new_vector = {xn, yn, zn};
             Array v_rot = new_vector*std::cos(phi_rot) + cross(vector, new_vector)*std::sin(phi_rot) + vector*dot(vector, new_vector)*(1-std::cos(phi_rot));
-    
+
             atom.setOldSpin(atom.getSpin());
             Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
             atom.setSpin(Sp);
@@ -287,7 +285,7 @@ void Atom::setModel(const std::string& model)
             Real zn = std::cos(theta_new);
             Array new_vector = {xn, yn, zn};
             Array v_rot = new_vector*std::cos(phi_rot) + cross(vector, new_vector)*std::sin(phi_rot) + vector*dot(vector, new_vector)*(1-std::cos(phi_rot));
-    
+
             atom.setOldSpin(atom.getSpin());
             Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
             atom.setSpin(Sp);
@@ -324,7 +322,7 @@ void Atom::setModel(const std::string& model)
                 Real zn = std::cos(theta_new);
                 Array new_vector = {xn, yn, zn};
                 Array v_rot = new_vector*std::cos(phi_rot) + cross(vector, new_vector)*std::sin(phi_rot) + vector*dot(vector, new_vector)*(1-std::cos(phi_rot));
-        
+
                 atom.setOldSpin(atom.getSpin());
                 Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
                 atom.setSpin(Sp);
@@ -372,7 +370,7 @@ void Atom::setModel(const std::string& model)
                 Real zn = std::cos(theta_new);
                 Array new_vector = {xn, yn, zn};
                 Array v_rot = new_vector*std::cos(phi_rot) + cross(vector, new_vector)*std::sin(phi_rot) + vector*dot(vector, new_vector)*(1-std::cos(phi_rot));
-        
+
                 atom.setOldSpin(atom.getSpin());
                 Array Sp = atom.getSpinNorm() * v_rot / std::sqrt((v_rot * v_rot).sum());
                 atom.setSpin(Sp);
@@ -500,5 +498,3 @@ void Atom::setTypeIndex(const Index& typeIndex)
 {
     this -> typeIndex_ = typeIndex;
 }
-
-

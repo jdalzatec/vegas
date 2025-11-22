@@ -1,35 +1,64 @@
-# Atari 2600 (Stella) support for multiple assemblers
-# - DASM
-# - CC65
+# Prerequisites
+*.d
 
-# Assembled binaries and object directories
-obj/
-a.out
-*.bin
-*.a26
-
-# Add in special Atari 7800-based binaries for good measure
-*.a78
-
-
-*.lyx
-*.png
-*.jpg
-*.svg
-
-*.nc
-*.h5
-*.mean
-
-*.zip
-*.gz
-*.rar
-
-code/include/hdf5
-code/include/jsoncpp
-
-compilers/linux/build
-
-config.h
-
+# Compiled Object files
+*.slo
+*.lo
 *.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Linker files
+*.ilk
+
+# Debugger Files
+*.pdb
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# debug information files
+*.dwo
+
+# CMake
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+CMakeUserPresets.json
+
+# CLion
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#cmake-build-*
+
+vegas

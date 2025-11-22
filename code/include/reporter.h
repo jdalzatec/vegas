@@ -1,9 +1,9 @@
 #ifndef REPORTER
 #define REPORTER
 
-#include "config.h"
 #include "params.h"
 #include "lattice.h"
+#include "H5Include.h"
 
 #include <string>
 #include <vector>
@@ -30,22 +30,22 @@ public:
         Lattice& lattice, Index index);
     void close();
     ~Reporter();
-    
+
 private:
     hid_t       file, space, filetype, memtype;
     hid_t       dataspace_id_energy, memspace_id_;
     hid_t       memspace_id_mag;
     herr_t      status;
-    
+
     std::vector<hid_t> mags_dset_x_;
     std::vector<hid_t> dataspace_id_mag_x_;
-    
+
     std::vector<hid_t> mags_dset_y_;
     std::vector<hid_t> dataspace_id_mag_y_;
-    
+
     std::vector<hid_t> mags_dset_z_;
     std::vector<hid_t> dataspace_id_mag_z_;
-    
+
     hid_t energies_dset;
     hid_t temps_dset;
     hid_t fields_dset;

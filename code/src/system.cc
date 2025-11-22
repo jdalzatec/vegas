@@ -1,10 +1,10 @@
-#include "system.h"
+#include "../include/system.h"
 #include <iostream>
 #include <iomanip>
 #include <cstdio>
 #include <fstream>
 #include <sstream>
-#include "rlutil.h"
+#include "../include/rlutil.h"
 #include <functional>
 
 // Message to exit and launch an error.
@@ -190,7 +190,7 @@ void System::cycle()
             histMag_y.at(i).clear();
             histMag_z.at(i).clear();
         }
-        
+
         Real rejection;
         Real sigma_temp;
         for (Index _ = 0; _ < this -> mcs_; ++_)
@@ -199,8 +199,8 @@ void System::cycle()
             enes.push_back(this -> totalEnergy(H));
             this -> ComputeMagnetization();
             // auto mag = this -> magnetizationType_.at("magnetization");
-            
-            
+
+
             Index i = 0;
             for (auto& val : this -> counterRejections_)
             {
@@ -225,7 +225,7 @@ void System::cycle()
             histMag_z.at(this -> num_types_).push_back(this -> magnetizationByTypeIndex_.at(this -> num_types_)[2]);
 
 
-            
+
         }
         this -> reporter_.partial_report(enes, histMag_x, histMag_y, histMag_z, this -> lattice_, index);
 
@@ -240,7 +240,7 @@ void System::cycle()
         rlutil::setColor(rlutil::LIGHTBLUE);
         std::cout << std::setprecision(5) << std::fixed;
         std::cout << "\t("
-                  << 100.0 * (index + 1) / (this -> temps_.size()) 
+                  << 100.0 * (index + 1) / (this -> temps_.size())
                   << "%)";
         rlutil::resetColor();
         // std::cout << "\t==>\tT = " << T << "; H = " << H << std::endl;
@@ -333,7 +333,7 @@ void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
                 Array A = {Ax, Ay, Az};
                 Array B = {Bx, By, Bz};
                 Array C = {Cx, Cy, Cz};
-                
+
                 Real kan = atof(sep[6].c_str());
 
                 std::function<Real(const Atom&)> func = [kan, A, B, C](const Atom& atom){
@@ -349,6 +349,6 @@ void System::setAnisotropies(std::vector<std::string> anisotropyfiles)
             {
                 EXIT("The anisotropy file with name " + fileName + " does not have the correct format !!!");
             }
-        }   
+        }
     }
 }

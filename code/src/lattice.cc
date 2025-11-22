@@ -1,9 +1,6 @@
-#include "lattice.h"
+#include "../include/lattice.h"
 
 #include <algorithm>
-#include <random>
-#include <cmath>
-#include "rlutil.h"
 
 
 Lattice::Lattice(std::string fileName)

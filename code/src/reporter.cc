@@ -1,5 +1,4 @@
-#include "reporter.h"
-#include <iostream>
+#include "../include/reporter.h"
 
 Reporter::Reporter()
 {
@@ -34,7 +33,7 @@ Reporter::Reporter(std::string filename,
     this -> dataspace_id_mag_y_ = std::vector<hid_t>(num_types + 1);
     this -> mags_dset_z_ = std::vector<hid_t>(num_types + 1);
     this -> dataspace_id_mag_z_ = std::vector<hid_t>(num_types + 1);
-    
+
     for (auto& type : lattice.getMapTypeIndexes())
     {
         this -> mags_dset_x_.at(type.second) = H5Dcreate(file, (type.first + "_x").c_str(),
@@ -65,7 +64,7 @@ Reporter::Reporter(std::string filename,
     this -> energies_dset = H5Dcreate(file, "energy",
                 H5T_IEEE_F64LE, space, H5P_DEFAULT,
                 dcpl, H5P_DEFAULT);
-    
+
 
     hsize_t dims_temps[1] = {temps.size()};
     space = H5Screate_simple(1, dims_temps, NULL);
@@ -122,7 +121,7 @@ Reporter::Reporter(std::string filename,
     this -> dims_select_[0] = mcs;
     this -> memspace_id_ = H5Screate_simple(1, this -> dims_select_, NULL);
     this -> dataspace_id_energy = H5Dget_space(this -> energies_dset);
-    
+
     this -> start_[1] = 0;
 
     this -> count_[0] = 1;
@@ -146,7 +145,7 @@ Reporter::Reporter(std::string filename,
     this -> dims_select_finalstates[0] = 3;
     this -> memspace_id_finalstates = H5Screate_simple(1, this -> dims_select_finalstates, NULL);
     this -> dataspace_id_finalstates = H5Dget_space(this -> finalstates_dset);
-    
+
     this -> start_finalstates[2] = 0;
 
     this -> count_finalstates[0] = 1;

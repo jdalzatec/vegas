@@ -1,15 +1,11 @@
-#include "config.h"
-
 #include <iostream>
-#include <fstream>
 #include <string>
-#include <tuple>
-#include "system.h"
+#include "include/system.h"
 
 // Library to manage the console colors
-#include "rlutil.h"
+#include "include/rlutil.h"
 
-#include "starter.h"
+#include "include/starter.h"
 
 
 // Many functions for checking, errors and read the information were
@@ -52,7 +48,7 @@ int main(int argc, char const *argv[])
     // The simulation is ran with this command:
     system_.cycle();
 
-    // An announcement is printed to inform that the simulation has ended. 
+    // An announcement is printed to inform that the simulation has ended.
     rlutil::setColor(rlutil::LIGHTGREEN);
     std::cout << "Succesful completion !!!" << std::endl;
     rlutil::resetColor();

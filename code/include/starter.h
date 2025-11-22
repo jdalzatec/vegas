@@ -5,6 +5,8 @@
 #include "params.h"
 #include "system.h"
 
+#include "json/json.h"
+
 // Library to manage the console colors
 #include "rlutil.h"
 
@@ -137,7 +139,7 @@ namespace STARTER{
 
         std::cout << std::endl;
         std::cout << "\t\tNum Ions = \n\t\t\t" << system_.getLattice().getAtoms().size() << std::endl;
-        
+
         // The amount of ions are printed for type ion.
         for (auto&& type : system_.getLattice().getMapTypeIndexes())
         {
@@ -408,8 +410,4 @@ namespace STARTER{
 
         return system_;
     }
-
-    
-
-
 }

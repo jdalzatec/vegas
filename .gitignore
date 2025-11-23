@@ -62,3 +62,4 @@ CMakeUserPresets.json
 #cmake-build-*
 
 vegas
+build/

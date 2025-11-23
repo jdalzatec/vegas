@@ -1,21 +1,26 @@
-FROM ubuntu:16.10
-RUN apt-get update -q -y
-RUN apt-get upgrade -q -y
-RUN apt-get install -q -y python3 libhdf5-dev libjsoncpp-dev
-RUN apt-get install -q -y cmake build-essential apt-utils python3-pip
-# RUN apt-get clean all
-# RUN apt-get autoclean 
-# RUN apt-get autoremove 
-ENV LC_ALL C.UTF-8
-RUN pip3 install click numpy tqdm h5py matplotlib
-ADD . /vegas
-RUN mkdir /vegas/build
-WORKDIR /vegas/build
+FROM ubuntu:24.04
 
-RUN cmake ../compilers/linux && make && make install
-RUN cp ../vegas-analyzer-heisenberg.py /opt/
-RUN cp ../vegas-analyzer-lite.py /opt/
-RUN cp ../vegas-analyzer-xyz.py /opt/
-RUN mv ../vegas-analyzer-heisenberg.py .
-RUN mv ../vegas-analyzer-lite.py .
-RUN mv ../vegas-analyzer-xyz.py .
+ARG DEBIAN_FRONTEND=noninteractive
+WORKDIR /src
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    python3 \
+    python3-pip \
+    python3-venv \
+    git \
+    ca-certificates \
+    pipx \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY conanfile.txt /src/conanfile.txt
+RUN pipx run --spec "conan>=2,<3" conan profile detect --force \
+ && mkdir -p /src/build \
+ && pipx run --spec "conan>=2,<3" conan install /src --output-folder=/src/build --build=missing
+
+COPY . /src
+RUN cmake -S /src -B /src/build -G "Unix Makefiles" -DCMAKE_TOOLCHAIN_FILE=/src/build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release \
+ && cmake --build /src/build -j
+
+ RUN cp /src/build/vegas /bin/vegas && chmod +x /bin/vegas

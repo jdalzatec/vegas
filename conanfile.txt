@@ -1,0 +1,7 @@
+[requires]
+hdf5/1.14.5
+jsoncpp/1.9.5
+
+[generators]
+CMakeDeps
+CMakeToolchain
